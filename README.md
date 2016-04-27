@@ -114,10 +114,16 @@ that enforces Apache headers in every source file - to disable it, try:
 
 
 
+Installation
+-----
+
+**TODO:** Document how to install this plugin.
+	
+	
 Usage
 -----
 
-**TODO:** Document how to install and use this plugin.
+**TODO:** Document how to use this plugin.
 
 
 
