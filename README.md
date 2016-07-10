@@ -1,3 +1,1 @@
-In this project are maintained all documents of the MSc Project:
-
-Adding Geospatial Services to Computational Workflow System Apache Taverna
+This project implements a gis plugin to add the support of geospatial services to Taverna 2.5
