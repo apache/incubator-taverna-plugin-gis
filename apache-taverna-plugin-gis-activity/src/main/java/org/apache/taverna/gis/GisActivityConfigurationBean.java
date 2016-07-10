@@ -15,7 +15,7 @@ import net.sf.taverna.t2.workflowmodel.processor.activity.config.ActivityPortsDe
 public class GisActivityConfigurationBean extends ActivityPortsDefinitionBean implements Serializable {
 
 	/*
-	 * TODO: Remove this comment.
+	 * TODO: Remove this comment. Should the jackson ojbect be managed in this class?
 	 * 
 	 * The configuration specifies the variable options and configurations for
 	 * an activity that has been added to a workflow. For instance for a WSDL
@@ -32,7 +32,7 @@ public class GisActivityConfigurationBean extends ActivityPortsDefinitionBean im
 	 * be referenced as well, as long as they are part of the same plugin.
 	 */
 	
-	// TODO: Remove the example fields and getters/setters and add your own	
+
 	private URI ogcServiceUri;
 	private String processIdentifier;
 	

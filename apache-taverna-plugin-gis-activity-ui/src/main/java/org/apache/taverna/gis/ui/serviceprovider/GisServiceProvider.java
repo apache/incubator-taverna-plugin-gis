@@ -51,7 +51,7 @@ public class GisServiceProvider extends AbstractConfigurableServiceProvider<GisS
 		// TODO: Optional: set description (Set a better description
 		service.setDescription(getConfiguration().getProcessIdentifier());
 
-		// TODO: Exctract in separate method 
+		// TODO: Exctract in a separate method 
 		// Get input ports
 		
 		WPSClientSession wpsClient = WPSClientSession.getInstance();
@@ -109,9 +109,6 @@ public class GisServiceProvider extends AbstractConfigurableServiceProvider<GisS
 		// for-loop if the full search takes a long time
 		callBack.partialResults(results);
 
-		
-		
-		
 		// No more results will be coming
 		callBack.finished();
 	}

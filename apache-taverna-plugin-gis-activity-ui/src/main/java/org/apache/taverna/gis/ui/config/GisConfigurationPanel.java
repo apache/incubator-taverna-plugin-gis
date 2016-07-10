@@ -22,7 +22,7 @@ public class GisConfigurationPanel
 	private GisActivity activity;
 	private GisActivityConfigurationBean configBean;
 	
-	private JTextField fieldString;
+	private JTextField fieldProcessIdentifier;
 	private JTextField fieldURI;
 
 	public GisConfigurationPanel(GisActivity activity) {
@@ -37,9 +37,9 @@ public class GisConfigurationPanel
 		// FIXME: Create GUI depending on activity configuration bean
 		JLabel labelString = new JLabel("Example string:");
 		add(labelString);
-		fieldString = new JTextField(20);
-		add(fieldString);
-		labelString.setLabelFor(fieldString);
+		fieldProcessIdentifier = new JTextField(20);
+		add(fieldProcessIdentifier);
+		labelString.setLabelFor(fieldProcessIdentifier);
 
 		JLabel labelURI = new JLabel("Example URI:");
 		add(labelURI);
@@ -86,7 +86,7 @@ public class GisConfigurationPanel
 		String originalString = configBean.getProcessIdentifier();
 		String originalUri = configBean.getOgcServiceUri().toASCIIString();
 		// true (changed) unless all fields match the originals
-		return ! (originalString.equals(fieldString.getText())
+		return ! (originalString.equals(fieldProcessIdentifier.getText())
 				&& originalUri.equals(fieldURI.getText()));
 	}
 
@@ -99,7 +99,7 @@ public class GisConfigurationPanel
 		configBean = new GisActivityConfigurationBean();
 		
 		// FIXME: Update bean fields from your UI elements
-		configBean.setProcessIdentifier(fieldString.getText());
+		configBean.setProcessIdentifier(fieldProcessIdentifier.getText());
 		configBean.setOgcServiceUri(URI.create(fieldURI.getText()));
 	}
 
@@ -112,7 +112,7 @@ public class GisConfigurationPanel
 		configBean = activity.getConfiguration();
 		
 		// FIXME: Update UI elements from your bean fields
-		fieldString.setText(configBean.getProcessIdentifier());
+		fieldProcessIdentifier.setText(configBean.getProcessIdentifier());
 		fieldURI.setText(configBean.getOgcServiceUri().toASCIIString());
 	}
 }

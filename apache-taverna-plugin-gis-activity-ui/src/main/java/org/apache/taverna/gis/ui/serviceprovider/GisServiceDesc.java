@@ -82,9 +82,8 @@ public class GisServiceDesc extends ServiceDescription<GisActivityConfigurationB
 	}
 
 	
-	// FIXME: Replace example fields and getters/setters with any required
-	// and optional fields. (All fields are searchable in the Service palette,
-	// for instance try a search for exampleString:3)
+	// All fields are searchable in the Service palette,
+	// for instance try a search for exampleString:3
 	private URI ogcServiceUri;
 	private String processIdentifier;
 	private List<ActivityInputPortDefinitionBean> inputPortDefinitions;
