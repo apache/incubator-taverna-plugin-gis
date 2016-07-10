@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.apache.taverna.gis</groupId>
+		<artifactId>apache-taverna-plugin-gis</artifactId>
+		<version>0.0.1-incubating-SNAPSHOT</version>
+	</parent>
+	<artifactId>apache-taverna-plugin-gis-activity</artifactId>
+	<name>Gis Taverna activity</name>
+
+	<repositories>
+		<repository>
+			<id>n52-releases</id>
+			<name>52n Releases</name>
+			<url>http://52north.org/maven/repo/releases</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+
+	<dependencies>
+		<dependency>
+			<groupId>net.sf.taverna.t2.core</groupId>
+			<artifactId>workflowmodel-api</artifactId>
+			<version>${t2.core.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.taverna.t2.activities</groupId>
+			<artifactId>activity-test-utils</artifactId>
+			<version>${t2.activities.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.n52.wps</groupId>
+			<artifactId>52n-wps-client-lib</artifactId>
+			<version>3.3.1</version>
+		</dependency>
+	</dependencies>
+</project>
