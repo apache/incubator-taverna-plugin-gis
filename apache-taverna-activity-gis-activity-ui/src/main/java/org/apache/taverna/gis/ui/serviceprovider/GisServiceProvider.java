@@ -1,3 +1,23 @@
+/*
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ */
 package org.apache.taverna.gis.ui.serviceprovider;
 
 import java.io.IOException;
@@ -32,7 +52,7 @@ public class GisServiceProvider extends AbstractConfigurableServiceProvider
 
 	public GisServiceProvider() {
 		super(defaultConfig());
-		
+
 	}
 
 	private static Configuration defaultConfig() {
@@ -69,16 +89,16 @@ public class GisServiceProvider extends AbstractConfigurableServiceProvider
 		// TODO: Optional: set description (Set a better description
 		service.setDescription(processIdentifier);
 
-		// TODO: Exctract in a separate method 
+		// TODO: Exctract in a separate method
 		// Get input ports
-		
+
 		WPSClientSession wpsClient = WPSClientSession.getInstance();
 
         ProcessDescriptionType processDescription;
 		try {
 			processDescription = wpsClient
 			        .getProcessDescription(serviceUri, processIdentifier);
-		
+
 			InputDescriptionType[] inputList = processDescription.getDataInputs()
 	                .getInputArray();
 
@@ -91,36 +111,36 @@ public class GisServiceProvider extends AbstractConfigurableServiceProvider
 	    		newInputPort.setAllowsLiteralValues(true);
 	    		newInputPort.setHandledReferenceSchemes(null);
 	    		newInputPort.setTranslatedElementType(String.class);
-	    		
+
 	    		inputPortDefinitions.add(newInputPort);
-	    		
+
 	        }
-	        
+
 	       // service.setInputPortDefinitions(inputPortDefinitions);
-			
-	        
+
+
 	        // Get output ports
-	        
+
 	        OutputDescriptionType[] outputList = processDescription.getProcessOutputs().getOutputArray();
 	        List<ActivityOutputPortDefinitionBean> outputPortDefinitions = new ArrayList<ActivityOutputPortDefinitionBean>();
-	        
+
 	        for( OutputDescriptionType output : outputList )
 	        {
 	        	ActivityOutputPortDefinitionBean newOutputPort = new ActivityOutputPortDefinitionBean();
 	        	newOutputPort.setName(output.getIdentifier().getStringValue());
 	        	newOutputPort.setDepth(0);
-	        	
+
 	        	outputPortDefinitions.add(newOutputPort);
-	        	
+
 	        }
-		
+
 	        //service.setOutputPortDefinitions(outputPortDefinitions);
-	        
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-        
+
 		results.add(service);
 
 		// partialResults() can also be called several times from inside
@@ -130,7 +150,7 @@ public class GisServiceProvider extends AbstractConfigurableServiceProvider
 		// No more results will be coming
 		callBack.finished();
 	}
-	
+
 	/**
 	 * Icon for service provider
 	 */
@@ -157,7 +177,7 @@ public class GisServiceProvider extends AbstractConfigurableServiceProvider
 
 	@Override
 	protected List<? extends Object> getIdentifyingData() {
-		return Arrays.asList(getConfiguration().getJson().get("osgiServiceUri"), 
+		return Arrays.asList(getConfiguration().getJson().get("osgiServiceUri"),
 				getConfiguration().getJson().get("processIdentifier"));
 	}
 
@@ -180,5 +200,5 @@ public class GisServiceProvider extends AbstractConfigurableServiceProvider
 		return false;
 	}
 
-	
+
 }
