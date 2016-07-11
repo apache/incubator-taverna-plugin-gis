@@ -4,8 +4,8 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.apache.taverna.gis</groupId>
-		<artifactId>apache-taverna-activity-gis</artifactId>
-		<version>0.0.1-incubating.SNAPSHOT</version>
+		<artifactId>apache-taverna-plugin-gis</artifactId>
+		<version>0.0.1-incubating-SNAPSHOT</version>
 	</parent>
 	<artifactId>apache-taverna-activity-gis-plugin</artifactId>
 	<packaging>taverna-plugin</packaging>
@@ -15,13 +15,13 @@
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>apache-taverna-activity-gis-activity</artifactId>
-			<version>0.0.1-incubating.SNAPSHOT</version>
+			<version>0.0.1-incubating-SNAPSHOT</version>
 		</dependency>
 		<!-- Enable for Workbench integration
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>apache-taverna-activity-gis-activity-ui</artifactId>
-			<version>0.0.1-incubating.SNAPSHOT</version>
+			<version>0.0.1-incubating-SNAPSHOT</version>
 		</dependency>
 		-->
 	</dependencies>

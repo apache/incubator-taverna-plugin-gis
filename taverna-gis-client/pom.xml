@@ -2,11 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.apache.taverna.gis</groupId>
-    <artifactId>apache-taverna-activity-gis</artifactId>
-    <version>0.0.1-incubating.SNAPSHOT</version>
+    <artifactId>apache-taverna-plugin-gis</artifactId>
+    <version>0.0.1-incubating-SNAPSHOT</version>
   </parent>
   <artifactId>taverna-gis-client</artifactId>
-  
+
   <dependencies>
   		<dependency>
 			<groupId>org.n52.wps</groupId>

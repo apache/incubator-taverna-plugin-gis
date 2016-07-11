@@ -4,8 +4,8 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.apache.taverna.gis</groupId>
-		<artifactId>apache-taverna-activity-gis</artifactId>
-		<version>0.0.1-incubating.SNAPSHOT</version>
+		<artifactId>apache-taverna-plugin-gis</artifactId>
+		<version>0.0.1-incubating-SNAPSHOT</version>
 	</parent>
 	<artifactId>apache-taverna-activity-gis-activity</artifactId>
 	<packaging>bundle</packaging>
@@ -47,7 +47,7 @@
 			<version>${taverna.engine.version}</version>
 			<scope>test</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>taverna-gis-client</artifactId>
