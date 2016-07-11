@@ -110,10 +110,10 @@
 	</repositories>
 
 	<modules>
-		<module>apache-taverna-activity-gis-plugin</module>
-		<module>apache-taverna-activity-gis-activity</module>
-		<module>apache-taverna-activity-gis-activity-ui</module>
-		<module>taverna-gis-client</module>
+		<module>taverna-gis-plugin</module>
+		<module>taverna-gis-activity</module>
+		<module>taverna-gis-activity-ui</module>		
+		<module>taverna-gis-plugin</module>
 	</modules>
 
 </project>
