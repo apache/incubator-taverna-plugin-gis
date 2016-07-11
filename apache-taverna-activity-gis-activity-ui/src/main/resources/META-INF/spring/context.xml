@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+                      http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="GisServiceIcon"
+		class="org.apache.taverna.gis.ui.serviceprovider.GisServiceIcon" />
+
+	<bean id="GisServiceProvider"
+		class="org.apache.taverna.gis.ui.serviceprovider.GisServiceProvider" />
+
+	<bean id="GisConfigureMenuAction"
+		class="org.apache.taverna.gis.ui.menu.GisConfigureMenuAction">
+		<property name="editManager" ref="editManager" />
+		<property name="fileManager" ref="fileManager" />
+		<property name="activityIconManager" ref="activityIconManager" />
+		<property name="serviceDescriptionRegistry" ref="serviceDescriptionRegistry" />
+		<property name="serviceRegistry" ref="serviceRegistry" />
+	</bean>
+
+	<bean id="GisActivityContextViewFactory"
+		class="org.apache.taverna.gis.ui.view.GisActivityContextViewFactory">
+		<property name="editManager" ref="editManager" />
+		<property name="fileManager" ref="fileManager" />
+		<property name="activityIconManager" ref="activityIconManager" />
+		<property name="serviceDescriptionRegistry" ref="serviceDescriptionRegistry" />
+		<property name="serviceRegistry" ref="serviceRegistry" />
+	</bean>
+
+</beans>
