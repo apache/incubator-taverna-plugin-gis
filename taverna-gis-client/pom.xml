@@ -25,6 +25,8 @@
     <version>0.0.1-incubating-SNAPSHOT</version>
   </parent>
   <artifactId>taverna-gis-client</artifactId>
+  <packaging>bundle</packaging>
+  <name>Apache Taverna GIS client</name>
 
   <dependencies>
   		<dependency>

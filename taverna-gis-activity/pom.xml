@@ -27,7 +27,7 @@
 	</parent>
 	<artifactId>taverna-gis-activity</artifactId>
 	<packaging>bundle</packaging>
-	<name>Gis Taverna activity</name>
+	<name>Apache Taverna GIS activity</name>
 
 	<dependencies>
 								<dependency>

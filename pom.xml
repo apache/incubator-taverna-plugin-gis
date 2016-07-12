@@ -30,7 +30,7 @@
 	<version>0.0.1-incubating-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
-	<name>Apache Taverna Plugin GIS</name>
+	<name>Apache Taverna GIS</name>
 	<description>
 	Taverna support for Geographical Information Systems, in particular
 	the OGC activity.
