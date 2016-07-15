@@ -28,7 +28,7 @@ public class GisServiceProvider extends AbstractConfigurableServiceProvider<GisS
 	}
 
 	private static final URI providerId = URI
-			.create("http://cs.man.ac.uk/2016/service-provider/apache-taverna-plugin-gis");
+			.create("http://cs.man.ac.uk/2016/service-provider/apache-taverna2-plugin-gis");
 
 	/**
 	 * Do the actual search for services. Return using the callBack parameter.

@@ -4,8 +4,8 @@
 	<prerequisites>
 		<maven>3.0.0</maven>
 	</prerequisites>
-	<groupId>org.apache.taverna.gis</groupId>
-	<artifactId>apache-taverna-plugin-gis</artifactId>
+	<groupId>org.apache.taverna2.gis</groupId>
+	<artifactId>apache-taverna2-plugin-gis</artifactId>
 	<version>0.0.1-incubating-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>Gis Taverna project</name>
@@ -97,20 +97,15 @@
 			<url>http://www.mygrid.org.uk/maven/repository</url>
 		</repository>
 		<repository>
-			<!-- The repository that your jars are deployed to -->
-			<id>my-repository</id>
-			<name>My Repository</name>
-			<url>http://repository.example.com/maven/repository</url>
-		</repository>
-		<repository>
-			<!-- The repository that your snapshot jars are deployed to -->
+			<id>n52-releases</id>
+			<name>52n Releases</name>
+			<url>http://52north.org/maven/repo/releases</url>
 			<releases>
-				<enabled>false</enabled>
+				<enabled>true</enabled>
 			</releases>
-			<snapshots/>
-			<id>my-snapshot-repository</id>
-			<name>My snapshot Repository</name>
-			<url>file:///tmp/test-plugins/</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
 		</repository>
 	</repositories>
 
@@ -122,23 +117,10 @@
 		</pluginRepository>
 	</pluginRepositories>
 
-	<!-- The location of your plugin site -->
-	<distributionManagement>
-		<repository>
-			<id>my-plugin-site</id>
-			<name>My Plugin Site</name>
-			<url>scpexe://repository.example.com/www/taverna/plugins/</url>
-		</repository>
-		<snapshotRepository>
-			<id>my-test-plugin-site</id>
-			<name>My Test Plugin Site</name>
-			<url>file:///tmp/test-plugins/</url>
-		</snapshotRepository>
-	</distributionManagement>
-
   <modules>
     <module>apache-taverna-plugin-gis-activity</module>
     <module>apache-taverna-plugin-gis-activity-ui</module>
     <module>apache-taverna-plugin-gis-plugin</module>
+    <module>apache-taverna-plugin-gis-client</module>
   </modules>
 </project>

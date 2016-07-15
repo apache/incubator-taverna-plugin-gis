@@ -3,11 +3,11 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>org.apache.taverna.gis</groupId>
-		<artifactId>apache-taverna-plugin-gis</artifactId>
+		<groupId>org.apache.taverna2.gis</groupId>
+		<artifactId>apache-taverna2-plugin-gis</artifactId>
 		<version>0.0.1-incubating-SNAPSHOT</version>
 	</parent>
-	<artifactId>apache-taverna-plugin-gis-plugin</artifactId>
+	<artifactId>apache-taverna2-plugin-gis-plugin</artifactId>
 	<packaging>taverna-plugin</packaging>
 	<name>Gis Taverna plugin</name>
 
@@ -29,12 +29,12 @@
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>apache-taverna-plugin-gis-activity</artifactId>
+			<artifactId>apache-taverna2-plugin-gis-activity</artifactId>
 			<version>0.0.1-incubating-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>apache-taverna-plugin-gis-activity-ui</artifactId>
+			<artifactId>apache-taverna2-plugin-gis-activity-ui</artifactId>
 			<version>0.0.1-incubating-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
