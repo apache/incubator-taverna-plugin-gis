@@ -35,8 +35,15 @@ import net.opengis.wps.x100.InputDescriptionType;
 import net.opengis.wps.x100.OutputDescriptionType;
 import net.opengis.wps.x100.ProcessDescriptionType;
 
+// TODO: Change name to a more descriptive one like GisServiceParser
 public class NorthClientImpl implements IGisClient {
 
+	private URI serviceURI = null;
+
+	public NorthClientImpl(String serviceURL) {
+		this.serviceURI = URI.create(serviceURL);
+	}
+	
 	@Override
 	public String GetServiceCapabilities(URI serviceURI) {
 		WPSClientSession wpsClient = WPSClientSession.getInstance();
@@ -67,7 +74,7 @@ public class NorthClientImpl implements IGisClient {
 	}
 
 	@Override
-	public HashMap<String, Integer> GetProcessInputPorts(URI serviceURI, String processID) {
+	public HashMap<String, Integer> GetProcessInputPorts(String processID) {
 		HashMap<String, Integer> inputPorts = new HashMap<String, Integer>();
 		
 		WPSClientSession wpsClient = WPSClientSession.getInstance();
@@ -99,7 +106,7 @@ public class NorthClientImpl implements IGisClient {
 	}
 
 	@Override
-	public HashMap<String, Integer> GetProcessOutputPorts(URI serviceURI, String processID) {
+	public HashMap<String, Integer> GetProcessOutputPorts(String processID) {
 		HashMap<String, Integer> outputPorts = new HashMap<String, Integer>();
 		
 		WPSClientSession wpsClient = WPSClientSession.getInstance();

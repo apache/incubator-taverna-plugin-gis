@@ -35,9 +35,9 @@ public interface IGisClient {
 	 */
 	public String GetServiceCapabilities(URI serviceURI);
 	
-	public HashMap<String, Integer> GetProcessInputPorts(URI serviceURI, String processID);
+	public HashMap<String, Integer> GetProcessInputPorts(String processID);
 	
-	public HashMap<String, Integer> GetProcessOutputPorts(URI serviceURI, String processID);
+	public HashMap<String, Integer> GetProcessOutputPorts(String processID);
 	
 	
 	
