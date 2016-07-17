@@ -33,7 +33,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class GisServiceDesc extends ServiceDescription {
 	public static final URI ACTIVITY_TYPE = URI
-			.create("http://ns.taverna.org.uk/2016/activity/gis");
+			.create("http://ns.taverna.org.uk/2016/service/gis");
 
 
 	/**
