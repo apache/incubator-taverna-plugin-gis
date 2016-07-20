@@ -1,6 +1,5 @@
 package org.apache.taverna.gis.ui.serviceprovider;
 
-import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,15 +7,12 @@ import java.util.List;
 
 import javax.swing.Icon;
 
-import org.n52.wps.client.WPSClientSession;
+import org.apache.taverna.gis.client.*;
+import org.apache.taverna.gis.client.impl.TypeDescriptor;
 
-import net.opengis.wps.x100.InputDescriptionType;
-import net.opengis.wps.x100.OutputDescriptionType;
-import net.opengis.wps.x100.ProcessDescriptionType;
 import net.sf.taverna.t2.servicedescriptions.AbstractConfigurableServiceProvider;
 import net.sf.taverna.t2.servicedescriptions.ConfigurableServiceProvider;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
-import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionProvider;
 import net.sf.taverna.t2.workflowmodel.processor.activity.config.ActivityInputPortDefinitionBean;
 import net.sf.taverna.t2.workflowmodel.processor.activity.config.ActivityOutputPortDefinitionBean;
 
@@ -51,28 +47,23 @@ public class GisServiceProvider extends AbstractConfigurableServiceProvider<GisS
 		// TODO: Optional: set description (Set a better description
 		service.setDescription(getConfiguration().getProcessIdentifier());
 
-		// TODO: Exctract in a separate method 
 		// Get input ports
 		
-		WPSClientSession wpsClient = WPSClientSession.getInstance();
-
-        ProcessDescriptionType processDescription;
+		IGisClient gisServiceClient = GisClientFactory.getInstance().getGisClient(getConfiguration().getOgcServiceUri().toASCIIString());
+		 
 		try {
-			processDescription = wpsClient
-			        .getProcessDescription(getConfiguration().getOgcServiceUri().toString(), getConfiguration().getProcessIdentifier());
-		
-			InputDescriptionType[] inputList = processDescription.getDataInputs()
-	                .getInputArray();
+			
+			List<TypeDescriptor> inputList = gisServiceClient.getTaverna2InputPorts(getConfiguration().getProcessIdentifier());
 
 	        List<ActivityInputPortDefinitionBean> inputPortDefinitions = new ArrayList<ActivityInputPortDefinitionBean>();
 
-	        for (InputDescriptionType input : inputList) {
+	        for (TypeDescriptor input : inputList) {
 	    		ActivityInputPortDefinitionBean newInputPort = new ActivityInputPortDefinitionBean();
-	    		newInputPort.setName(input.getIdentifier().getStringValue());
-	    		newInputPort.setDepth(0);
-	    		newInputPort.setAllowsLiteralValues(true);
+	    		newInputPort.setName(input.getName());
+	    		newInputPort.setDepth(input.getDepth());
+	    		newInputPort.setAllowsLiteralValues(input.isAllowLiteralValues());
 	    		newInputPort.setHandledReferenceSchemes(null);
-	    		newInputPort.setTranslatedElementType(String.class);
+	    		newInputPort.setTranslatedElementType(input.getTranslatedElementType());
 	    		
 	    		inputPortDefinitions.add(newInputPort);
 	    		
@@ -83,14 +74,14 @@ public class GisServiceProvider extends AbstractConfigurableServiceProvider<GisS
 	        
 	        // Get output ports
 	        
-	        OutputDescriptionType[] outputList = processDescription.getProcessOutputs().getOutputArray();
+	        List<TypeDescriptor> outputList = gisServiceClient.getTaverna2OutputPorts(getConfiguration().getProcessIdentifier());
 	        List<ActivityOutputPortDefinitionBean> outputPortDefinitions = new ArrayList<ActivityOutputPortDefinitionBean>();
 	        
-	        for( OutputDescriptionType output : outputList )
+	        for( TypeDescriptor output : outputList )
 	        {
 	        	ActivityOutputPortDefinitionBean newOutputPort = new ActivityOutputPortDefinitionBean();
-	        	newOutputPort.setName(output.getIdentifier().getStringValue());
-	        	newOutputPort.setDepth(0);
+	        	newOutputPort.setName(output.getName());
+	        	newOutputPort.setDepth(output.getDepth());
 	        	
 	        	outputPortDefinitions.add(newOutputPort);
 	        	
@@ -98,7 +89,7 @@ public class GisServiceProvider extends AbstractConfigurableServiceProvider<GisS
 		
 	        service.setOutputPortDefinitions(outputPortDefinitions);
 	        
-		} catch (IOException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

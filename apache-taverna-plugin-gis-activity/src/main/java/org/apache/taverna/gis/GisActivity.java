@@ -59,6 +59,21 @@ public class GisActivity extends AbstractAsynchronousActivity<GisActivityConfigu
 		// Add input ports
 		for(ActivityInputPortDefinitionBean inputPort : configBean.getInputPortDefinitions())
 		{
+			if (inputPort.getName()=="polygon")
+			{
+				addInput("polygon_schema",0,true, null, null);
+				addInput("polygon_encoding",0,true, null, null);
+				addInput("polygon_mimetype",0,true, null, null);
+				
+			}
+			
+			if (inputPort.getName()=="line")
+			{
+				addInput("line_schema",0,true, null, null);
+				addInput("line_encoding",0,true, null, null);
+				addInput("line_mimetype",0,true, null, null);
+			}
+			
 			addInput(inputPort.getName(),inputPort.getDepth(),inputPort.getAllowsLiteralValues(),inputPort.getHandledReferenceSchemes(), inputPort.getTranslatedElementType());
 		}
 		
@@ -66,6 +81,14 @@ public class GisActivity extends AbstractAsynchronousActivity<GisActivityConfigu
 		for(ActivityOutputPortDefinitionBean outputPort : configBean.getOutputPortDefinitions())
 		{
 			addOutput(outputPort.getName(),outputPort.getDepth());
+			
+			if (outputPort.getName()=="result")
+			{
+				addOutput("result_schema",0);
+				addOutput("result_encoding",0);
+				addOutput("result_mimetype",0);
+			}
+			
 		}
 		
 	}
@@ -94,7 +117,21 @@ public class GisActivity extends AbstractAsynchronousActivity<GisActivityConfigu
 
 					for (ActivityInputPortDefinitionBean activityInputPort : configBean.getInputPortDefinitions()) {
 						String portValue = (String) referenceService.renderIdentifier(inputs.get(activityInputPort.getName()), String.class, context);
-						executeBuilder.addLiteralData(activityInputPort.getName(), portValue);
+						
+						if (activityInputPort.getName().equals("polygon") || activityInputPort.getName().equals("line"))
+						{
+							String schema = "application/wkt";
+							String encoding = null;
+							String mimeType = "application/wkt";
+							
+							executeBuilder.addComplexData(activityInputPort.getName(),
+									portValue, schema, encoding, mimeType);
+							
+						}else
+						{
+							executeBuilder.addLiteralData(activityInputPort.getName(), portValue);
+						}
+						
 					}
 				
 					ExecuteDocument execute = executeBuilder.getExecute();
@@ -132,6 +169,14 @@ public class GisActivity extends AbstractAsynchronousActivity<GisActivityConfigu
 
 								outputs.put(output.getIdentifier().getStringValue(), simpleRef);
 							}
+			            	else
+			            	{
+			            	
+			            		simpleRef = referenceService.register(data.getComplexData().toString(), 0, true, context);
+			            		
+			            		outputs.put(output.getIdentifier().getStringValue(), simpleRef);
+			            		
+			            	}
 			            	
 						}
 			            
