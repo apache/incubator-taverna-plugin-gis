@@ -20,7 +20,6 @@
  */
 package org.apache.taverna.gis.ui.serviceprovider;
 
-import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,22 +28,13 @@ import java.util.List;
 import javax.swing.Icon;
 
 import org.apache.taverna.scufl2.api.common.Visitor;
-import org.apache.taverna.scufl2.api.common.WorkflowBean;
 import org.apache.taverna.scufl2.api.configurations.Configuration;
 import org.apache.taverna.servicedescriptions.AbstractConfigurableServiceProvider;
 import org.apache.taverna.servicedescriptions.ConfigurableServiceProvider;
 import org.apache.taverna.servicedescriptions.ServiceDescription;
 import org.apache.taverna.servicedescriptions.ServiceDescriptionProvider;
-import org.apache.taverna.servicedescriptions.ServiceDescriptionProvider.FindServiceDescriptionsCallBack;
-import org.apache.taverna.workflowmodel.processor.activity.config.ActivityInputPortDefinitionBean;
-import org.apache.taverna.workflowmodel.processor.activity.config.ActivityOutputPortDefinitionBean;
-import org.n52.wps.client.WPSClientSession;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import net.opengis.wps.x100.InputDescriptionType;
-import net.opengis.wps.x100.OutputDescriptionType;
-import net.opengis.wps.x100.ProcessDescriptionType;
 
 public class GisServiceProvider extends AbstractConfigurableServiceProvider
 		implements ConfigurableServiceProvider {
@@ -68,7 +58,6 @@ public class GisServiceProvider extends AbstractConfigurableServiceProvider
 	/**
 	 * Do the actual search for services. Return using the callBack parameter.
 	 */
-	@SuppressWarnings("unchecked")
 	public void findServiceDescriptionsAsync(FindServiceDescriptionsCallBack callBack) {
 		// Use callback.status() for long-running searches
 		callBack.status("Resolving GIS services");
@@ -88,58 +77,6 @@ public class GisServiceProvider extends AbstractConfigurableServiceProvider
 
 		// TODO: Optional: set description (Set a better description
 		service.setDescription(processIdentifier);
-
-		// TODO: Exctract in a separate method
-		// Get input ports
-
-		WPSClientSession wpsClient = WPSClientSession.getInstance();
-
-        ProcessDescriptionType processDescription;
-		try {
-			processDescription = wpsClient
-			        .getProcessDescription(serviceUri, processIdentifier);
-
-			InputDescriptionType[] inputList = processDescription.getDataInputs()
-	                .getInputArray();
-
-	        List<ActivityInputPortDefinitionBean> inputPortDefinitions = new ArrayList<ActivityInputPortDefinitionBean>();
-
-	        for (InputDescriptionType input : inputList) {
-	    		ActivityInputPortDefinitionBean newInputPort = new ActivityInputPortDefinitionBean();
-	    		newInputPort.setName(input.getIdentifier().getStringValue());
-	    		newInputPort.setDepth(0);
-	    		newInputPort.setAllowsLiteralValues(true);
-	    		newInputPort.setHandledReferenceSchemes(null);
-	    		newInputPort.setTranslatedElementType(String.class);
-
-	    		inputPortDefinitions.add(newInputPort);
-
-	        }
-
-	       // service.setInputPortDefinitions(inputPortDefinitions);
-
-
-	        // Get output ports
-
-	        OutputDescriptionType[] outputList = processDescription.getProcessOutputs().getOutputArray();
-	        List<ActivityOutputPortDefinitionBean> outputPortDefinitions = new ArrayList<ActivityOutputPortDefinitionBean>();
-
-	        for( OutputDescriptionType output : outputList )
-	        {
-	        	ActivityOutputPortDefinitionBean newOutputPort = new ActivityOutputPortDefinitionBean();
-	        	newOutputPort.setName(output.getIdentifier().getStringValue());
-	        	newOutputPort.setDepth(0);
-
-	        	outputPortDefinitions.add(newOutputPort);
-
-	        }
-
-	        //service.setOutputPortDefinitions(outputPortDefinitions);
-
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 
 		results.add(service);
 
