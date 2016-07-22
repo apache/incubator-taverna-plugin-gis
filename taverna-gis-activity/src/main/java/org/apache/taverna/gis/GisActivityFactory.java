@@ -72,11 +72,11 @@ public class GisActivityFactory implements ActivityFactory {
 	public Set<ActivityInputPort> getInputPorts(JsonNode configuration) {
 		Map<String, ActivityInputPort> inputPorts = new HashMap<String, ActivityInputPort>();
 		
-		IGisClient gisServiceParser = new NorthClientImpl(configuration.get("service").textValue());
-		
+		IGisClient gisServiceParser = GisClientFactory.getInstance().getGisClient(configuration.get("ogcServiceUri").textValue());
+				
 		try {
 			// get ports name, depth 
-			Map<String,Integer> inputPortDescriptions = gisServiceParser.GetProcessInputPorts(configuration.get("process").textValue());
+			Map<String,Integer> inputPortDescriptions = gisServiceParser.GetProcessInputPorts(configuration.get("processIdentifier").textValue());
 			
 			for (Map.Entry<String, Integer> entry : inputPortDescriptions.entrySet()) {
 				inputPorts.put(entry.getKey(), edits.createActivityInputPort(
@@ -95,11 +95,11 @@ public class GisActivityFactory implements ActivityFactory {
 		Map<String, ActivityOutputPort> outputPorts = new HashMap<String, ActivityOutputPort>();
 		
 		IGisClient gisServiceParser = GisClientFactory.getInstance()
-				.getGisClient(configuration.get("service").textValue());
+				.getGisClient(configuration.get("ogcServiceUri").textValue());
 		
 		try {
 			// get ports (name, depth) pairs 
-			Map<String,Integer> outputPortDescriptions = gisServiceParser.GetProcessInputPorts(configuration.get("process").textValue());
+			Map<String,Integer> outputPortDescriptions = gisServiceParser.GetProcessOutputPorts(configuration.get("processIdentifier").textValue());
 			
 			for (Map.Entry<String, Integer> outputPortIterator : outputPortDescriptions.entrySet()) {
 				outputPorts.put(outputPortIterator.getKey(), 
@@ -108,7 +108,7 @@ public class GisActivityFactory implements ActivityFactory {
 			} 
 		} catch (Exception e) {
 			logger.warn(
-					"Unable to parse the GIS " + configuration.get("service").textValue(), e);
+					"Unable to parse the GIS " + configuration.get("ogcServiceUri").textValue(), e);
 		}
 		
 		return new HashSet<ActivityOutputPort>(outputPorts.values());

@@ -15,7 +15,7 @@ public class NorthClientImplTest {
 
 		URI uri = new URI("http://localhost:8080/geoserver/ows");
 	
-		String result = new NorthClientImpl().GetServiceCapabilities(uri);
+		String result = new NorthClientImpl(uri.toASCIIString()).GetServiceCapabilities(uri);
 		
 		assertEquals("Incorrect service title",result, "Prototype GeoServer WPS");
 		
@@ -32,7 +32,7 @@ public class NorthClientImplTest {
 		expectedInputResult.put("name", 0);
 		expectedInputResult.put("surname", 0);
 		
-		HashMap<String,Integer> result = new NorthClientImpl().GetProcessInputPorts(uri, processID);
+		HashMap<String,Integer> result = new NorthClientImpl(uri.toASCIIString()).GetProcessInputPorts(processID);
 		
 		assertEquals("Incorrect input ports result",result, expectedInputResult);
 		
@@ -49,7 +49,7 @@ public class NorthClientImplTest {
 		HashMap<String, Integer> expectedOutputResult = new HashMap<String, Integer>();
 		expectedOutputResult.put("result", 0);
 		
-		HashMap<String,Integer> result = new NorthClientImpl().GetProcessOutputPorts(uri, processID);
+		HashMap<String,Integer> result = new NorthClientImpl(uri.toASCIIString()).GetProcessOutputPorts(processID);
 		
 		// check if the ports do not match
 		assertEquals("Incorrect output ports result",result, expectedOutputResult);

@@ -49,8 +49,8 @@ public class GisActivityFactoryTest {
 	@Before
 	public void setUp() throws Exception {
 		configuration = JsonNodeFactory.instance.objectNode();
-		configuration.put("exampleString", "something");
-		configuration.put("exampleUri", "http://localhost:8080/myEndPoint");
+		configuration.put("ogcServiceUri", "http://localhost:8080/geoserver/ows");
+		configuration.put("processIdentifier", "custom:splitPolygon");
 
 		activityFactory = new GisActivityFactory();
 		activityFactory.setEdits(new EditsImpl());
@@ -74,14 +74,15 @@ public class GisActivityFactoryTest {
 		assertNotNull(configurationSchema);
 		assertTrue(configurationSchema.has("properties"));
 		JsonNode propertiesNode = configurationSchema.get("properties");
-		assertTrue(propertiesNode.has("exampleString"));
-		assertTrue(propertiesNode.has("exampleUri"));
+		assertTrue(propertiesNode.has("ogcServiceUri"));
+		assertTrue(propertiesNode.has("processIdentifier"));
 	}
 
 	@Test
 	public void testGetInputPorts() {
 		Set<String> expectedInputs = new HashSet<String>();
-		expectedInputs.add("firstInput");
+		expectedInputs.add("line");
+		expectedInputs.add("polygon");
 
 		Set<ActivityInputPort> inputPorts = activityFactory.getInputPorts(configuration);
 		assertEquals("Unexpected inputs", expectedInputs.size(), inputPorts.size());
@@ -91,8 +92,8 @@ public class GisActivityFactoryTest {
 		}
 
 		ObjectNode specialConfiguration = JsonNodeFactory.instance.objectNode();
-		specialConfiguration.put("exampleString", "specialCase");
-		specialConfiguration.put("exampleUri", "http://localhost:8080/myEndPoint");
+		specialConfiguration.put("ogcServiceUri", "http://localhost:8080/geoserver/ows");
+		specialConfiguration.put("processIdentifier", "custom:splitPolygon");
 
 		assertEquals("Unexpected inputs", 2, activityFactory.getInputPorts(specialConfiguration).size());
 	}
@@ -100,8 +101,7 @@ public class GisActivityFactoryTest {
 	@Test
 	public void testGetOutputPorts() {
 		Set<String> expectedOutputs = new HashSet<String>();
-		expectedOutputs.add("simpleOutput");
-		expectedOutputs.add("moreOutputs");
+		expectedOutputs.add("result");
 
 		Set<ActivityOutputPort> outputPorts = activityFactory.getOutputPorts(configuration);
 		assertEquals("Unexpected outputs", expectedOutputs.size(), outputPorts.size());
@@ -111,10 +111,10 @@ public class GisActivityFactoryTest {
 		}
 
 		ObjectNode specialConfiguration = JsonNodeFactory.instance.objectNode();
-		specialConfiguration.put("exampleString", "specialCase");
-		specialConfiguration.put("exampleUri", "http://localhost:8080/myEndPoint");
+		specialConfiguration.put("ogcServiceUri", "http://localhost:8080/geoserver/ows");
+		specialConfiguration.put("processIdentifier", "custom:splitPolygon");
 
-		assertEquals("Unexpected outputs", 3, activityFactory.getOutputPorts(specialConfiguration).size());
+		assertEquals("Unexpected outputs", 1, activityFactory.getOutputPorts(specialConfiguration).size());
 	}
 
 }
