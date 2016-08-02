@@ -12,12 +12,14 @@ import org.apache.taverna.gis.client.impl.TypeDescriptor;
 
 import net.sf.taverna.t2.servicedescriptions.AbstractConfigurableServiceProvider;
 import net.sf.taverna.t2.servicedescriptions.ConfigurableServiceProvider;
+import net.sf.taverna.t2.servicedescriptions.CustomizedConfigurePanelProvider;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
 import net.sf.taverna.t2.workflowmodel.processor.activity.config.ActivityInputPortDefinitionBean;
 import net.sf.taverna.t2.workflowmodel.processor.activity.config.ActivityOutputPortDefinitionBean;
 
 public class GisServiceProvider extends AbstractConfigurableServiceProvider<GisServiceProviderConfig>
-		implements ConfigurableServiceProvider<GisServiceProviderConfig> {
+		implements ConfigurableServiceProvider<GisServiceProviderConfig>,
+		CustomizedConfigurePanelProvider<GisServiceProviderConfig> {
 
 	public GisServiceProvider() {
 		super(new GisServiceProviderConfig());
@@ -35,9 +37,6 @@ public class GisServiceProvider extends AbstractConfigurableServiceProvider<GisS
 		callBack.status("Resolving GIS services");
 
 		List<ServiceDescription> results = new ArrayList<ServiceDescription>();
-
-		// FIXME: Implement the actual service search/lookup instead
-		// of dummy for-loop
 
 		GisServiceDesc service = new GisServiceDesc();
 		// Populate the service description bean
@@ -144,6 +143,35 @@ public class GisServiceProvider extends AbstractConfigurableServiceProvider<GisS
 		
 		return Arrays.asList(myConfig);
 		
+		
+	}
+
+	@Override
+	public void createCustomizedConfigurePanel(
+			net.sf.taverna.t2.servicedescriptions.CustomizedConfigurePanelProvider.CustomizedConfigureCallBack<GisServiceProviderConfig> callBack) {
+
+
+		AddGisServiceDialog addGISServiceDialog = new AddGisServiceDialog(null);
+
+		addGISServiceDialog.setVisible(true);
+//		
+//		
+//		// Possible choices for drop-down box
+//	    URI[] uris = new URI[3];
+//	    uris[0] = URI.create("http://example.com/serviceA");
+//	    uris[1] = URI.create("http://example.com/serviceB");
+//	    uris[2] = URI.create("http://example.com/serviceC");
+//	 
+//	    // Dialogue with drop-down
+//	    String message = "Choose the example service URI";
+//	    String title = "Which service?";
+//	    Object uri = JOptionPane.showInputDialog(null, message, title,
+//	            JOptionPane.PLAIN_MESSAGE, null, uris, uris[0]);
+//	 
+//	    // Return a new provider configuration
+//	    GisServiceProviderConfig config = new GisServiceProviderConfig();
+//	    config.setOgcServiceUri((URI) uri);
+//	    callBack.newProviderConfiguration(config);
 		
 	}
 	

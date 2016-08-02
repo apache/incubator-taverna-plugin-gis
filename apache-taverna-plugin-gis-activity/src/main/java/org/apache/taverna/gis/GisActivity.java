@@ -1,19 +1,13 @@
 package org.apache.taverna.gis;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
-import org.geotools.ows.ServiceException;
 import org.n52.wps.client.ExecuteRequestBuilder;
 import org.n52.wps.client.ExecuteResponseAnalyser;
 import org.n52.wps.client.WPSClientException;
 import org.n52.wps.client.WPSClientSession;
-import org.n52.wps.io.data.IData;
-import org.n52.wps.io.data.binding.complex.GTVectorDataBinding;
 
 import net.opengis.wps.x100.DataType;
 import net.opengis.wps.x100.ExecuteDocument;
@@ -38,7 +32,6 @@ public class GisActivity extends AbstractAsynchronousActivity<GisActivityConfigu
 	@Override
 	public void configure(GisActivityConfigurationBean configBean) throws ActivityConfigurationException {
 
-		// TODO: Should I call HealthChecker here??
 		// Any pre-config sanity checks
 		if (configBean.getOgcServiceUri().equals("")) {
 			throw new ActivityConfigurationException("Geospatial web service URI can't be empty");
