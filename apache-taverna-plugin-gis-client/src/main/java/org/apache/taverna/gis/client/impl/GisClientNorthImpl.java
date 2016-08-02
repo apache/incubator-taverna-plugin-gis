@@ -37,7 +37,9 @@ import net.opengis.ows.x11.LanguageStringType;
 import net.opengis.wps.x100.CapabilitiesDocument;
 import net.opengis.wps.x100.InputDescriptionType;
 import net.opengis.wps.x100.OutputDescriptionType;
+import net.opengis.wps.x100.ProcessBriefType;
 import net.opengis.wps.x100.ProcessDescriptionType;
+import net.opengis.wps.x100.WPSCapabilitiesType;
 
 // TODO: Change name to a more descriptive one like GisServiceParser
 public class GisClientNorthImpl implements IGisClient {
@@ -49,10 +51,6 @@ public class GisClientNorthImpl implements IGisClient {
 	public GisClientNorthImpl(String serviceURL) {
 		this.serviceURI = URI.create(serviceURL);
 		wpsClient = WPSClientSession.getInstance();
-	}
-	
-	@Override
-	public String GetServiceCapabilities(URI serviceURI) {
 		
 		try {
 			wpsClient.connect(serviceURI.toString());
@@ -60,19 +58,17 @@ public class GisClientNorthImpl implements IGisClient {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+	}
+	
+	@Override
+	public String getServiceCapabilities(URI serviceURI) {
 
 		CapabilitiesDocument capabilities = wpsClient.getWPSCaps(serviceURI.toString());
 
 		LanguageStringType[] serviceAbstract = capabilities.getCapabilities().getServiceIdentification()
 				.getTitleArray();
-		//
-		// ProcessBriefType[] processList = capabilities.getCapabilities()
-		// .getProcessOfferings().getProcessArray();
-		//
-		// for (ProcessBriefType process : processList) {
-		// System.out.println(process.getIdentifier().getStringValue());
-		// }
-		// return capabilities;
+	
 		if (serviceAbstract != null && serviceAbstract.length > 0)
 			return serviceAbstract[0].getStringValue();
 		else
@@ -80,7 +76,7 @@ public class GisClientNorthImpl implements IGisClient {
 	}
 
 	@Override
-	public HashMap<String, Integer> GetProcessInputPorts(String processID) {
+	public HashMap<String, Integer> getProcessInputPorts(String processID) {
 		HashMap<String, Integer> inputPorts = new HashMap<String, Integer>();
 		
 		ProcessDescriptionType processDescription = null;
@@ -110,7 +106,7 @@ public class GisClientNorthImpl implements IGisClient {
 	}
 
 	@Override
-	public HashMap<String, Integer> GetProcessOutputPorts(String processID) {
+	public HashMap<String, Integer> getProcessOutputPorts(String processID) {
 		HashMap<String, Integer> outputPorts = new HashMap<String, Integer>();
 		
 		ProcessDescriptionType processDescription = null;
@@ -215,6 +211,23 @@ public class GisClientNorthImpl implements IGisClient {
 		}
 
 		return outputPorts;
+	}
+
+	@Override
+	public List<String> getProcessList() {
+		List<String> results = new ArrayList<String>();
+
+		WPSCapabilitiesType wpsCapabilities = wpsClient.getWPSCaps(serviceURI.toString()).getCapabilities();
+		
+		ProcessBriefType[] processList = wpsCapabilities.getProcessOfferings().getProcessArray();
+		
+		for( ProcessBriefType process: processList)
+		{
+			results.add(process.getIdentifier().getStringValue());
+		}
+		
+		return results;
+		
 	}
 
 }
