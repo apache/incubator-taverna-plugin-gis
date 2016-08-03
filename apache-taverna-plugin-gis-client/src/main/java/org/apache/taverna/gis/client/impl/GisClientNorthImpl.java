@@ -27,11 +27,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.apache.taverna.gis.client.IGisClient;
 import org.n52.wps.client.WPSClientException;
 import org.n52.wps.client.WPSClientSession;
-
-import com.google.common.util.concurrent.UncaughtExceptionHandlers;
 
 import net.opengis.ows.x11.LanguageStringType;
 import net.opengis.wps.x100.CapabilitiesDocument;
@@ -39,13 +38,14 @@ import net.opengis.wps.x100.InputDescriptionType;
 import net.opengis.wps.x100.OutputDescriptionType;
 import net.opengis.wps.x100.ProcessBriefType;
 import net.opengis.wps.x100.ProcessDescriptionType;
+import net.opengis.wps.x100.ProcessDescriptionType.DataInputs;
 import net.opengis.wps.x100.WPSCapabilitiesType;
 
-// TODO: Change name to a more descriptive one like GisServiceParser
 public class GisClientNorthImpl implements IGisClient {
 
+	private Logger logger = Logger.getLogger(GisClientNorthImpl.class);
+	
 	private URI serviceURI = null;
-
 	private WPSClientSession wpsClient;
 	
 	public GisClientNorthImpl(String serviceURL) {
@@ -54,9 +54,8 @@ public class GisClientNorthImpl implements IGisClient {
 		
 		try {
 			wpsClient.connect(serviceURI.toString());
-		} catch (WPSClientException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (WPSClientException ex) {
+			logger.error("Failed to connect to service: " + serviceURI, ex);
 		}
 		
 	}
@@ -83,15 +82,19 @@ public class GisClientNorthImpl implements IGisClient {
 		
 		try {
 			processDescription = wpsClient.getProcessDescription(serviceURI.toString(), processID);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (IOException ex) {
+			logger.error("Failed to list input ports for process: " + processID, ex);
 		}
 
 		if (processDescription==null)
-			return null;
+			return inputPorts;
 		
-		InputDescriptionType[] inputList = processDescription.getDataInputs().getInputArray();
+		DataInputs dataInputs = processDescription.getDataInputs();
+		
+		if (dataInputs == null)
+			return inputPorts;
+		
+		InputDescriptionType[] inputList = dataInputs.getInputArray();
 
 		for (InputDescriptionType input : inputList) {
 
@@ -113,13 +116,12 @@ public class GisClientNorthImpl implements IGisClient {
 		
 		try {
 			processDescription = wpsClient.getProcessDescription(serviceURI.toString(), processID);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (IOException ex) {
+			logger.error("Failed to list processe output port for process: " + processID, ex);
 		}
 
 		if (processDescription==null)
-			return null;
+			return outputPorts;
 		
 		OutputDescriptionType[] outputList = processDescription.getProcessOutputs().getOutputArray();
 
@@ -143,15 +145,19 @@ public class GisClientNorthImpl implements IGisClient {
 		
 		try {
 			processDescription = wpsClient.getProcessDescription(serviceURI.toString(), processID);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (IOException ex) {
+			logger.error("Failed to get process description for process: " + processID, ex);
 		}
 
 		if (processDescription==null)
-			return null;
+			return inputPorts;
 		
-		InputDescriptionType[] inputList = processDescription.getDataInputs().getInputArray();
+		DataInputs dataInputs = processDescription.getDataInputs();
+		
+		if (dataInputs == null)
+			return inputPorts;
+					
+		InputDescriptionType[] inputList = dataInputs.getInputArray();
 
 		for (InputDescriptionType input : inputList) {
 			TypeDescriptor myNewInputPort = new TypeDescriptor();
@@ -191,13 +197,12 @@ public class GisClientNorthImpl implements IGisClient {
 
 		try {
 			processDescription = wpsClient.getProcessDescription(serviceURI.toString(), processID);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (IOException ex) {
+			logger.error("Failed to list output ports for process: " + processID, ex);
 		}
 
 		if (processDescription == null)
-			return null;
+			return outputPorts;
 
 		OutputDescriptionType[] outputList = processDescription.getProcessOutputs().getOutputArray();
 
