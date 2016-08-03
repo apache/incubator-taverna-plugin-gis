@@ -41,8 +41,11 @@ import org.apache.taverna.gis.client.IGisClient;
 import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 
 @SuppressWarnings("serial")
-public class AddGisServiceDialog extends HelpEnabledDialog {
+public abstract class AddGisServiceDialog extends HelpEnabledDialog {
 
+	private final int CHECKBOX_COLUMN = 0;
+	private final int PROCESS_ID_COLUMN = 1;
+	
 	private JTextField serviceLocationField;
 	private TableRowSorter<DefaultTableModel> sorter;
 	private JFilterTable processesTable;
@@ -127,6 +130,7 @@ public class AddGisServiceDialog extends HelpEnabledDialog {
 		servicePanel.add(serviceLocatitionLabel, gbc);
 
 		serviceLocationField = new JTextField("http://somehost/service?");
+		serviceLocationField.selectAll();
 		gbc.weighty = 0;
 		gbc.weightx = 1;
 		gbc.gridx = 0;
@@ -306,7 +310,7 @@ public class AddGisServiceDialog extends HelpEnabledDialog {
 			@Override
 			public boolean isCellEditable(int row, int column) {
 				// Only the first column
-				return column == 0;
+				return column == CHECKBOX_COLUMN;
 			}
 
 		};
@@ -316,8 +320,8 @@ public class AddGisServiceDialog extends HelpEnabledDialog {
 		processesTable = new JFilterTable(model);
 		processesTable.setRowSorter(sorter);
 
-		processesTable.getColumnModel().getColumn(0).setPreferredWidth(20);
-		processesTable.getColumnModel().getColumn(1).setPreferredWidth(250);
+		processesTable.getColumnModel().getColumn(CHECKBOX_COLUMN).setPreferredWidth(20);
+		processesTable.getColumnModel().getColumn(PROCESS_ID_COLUMN).setPreferredWidth(250);
 
 		processesTable.setPreferredScrollableViewportSize(new Dimension(300, 100));
 		processesTable.setFillsViewportHeight(true);
@@ -377,7 +381,7 @@ public class AddGisServiceDialog extends HelpEnabledDialog {
 	
 	private void checkAllProcesses(boolean value) {
 		for (int i = 0; i < processesTable.getRowCount(); i++)
-			processesTable.getModel().setValueAt(value, i, 0);
+			processesTable.getModel().setValueAt(value, i, CHECKBOX_COLUMN);
 	}
 
 	private void addPressed() {
@@ -398,6 +402,8 @@ public class AddGisServiceDialog extends HelpEnabledDialog {
 						}
 					}
 					
+					addRegistry(serviceURL, getSelectedProcesses());
+					
 				} catch (Exception ex) { // anything failed
 					JOptionPane.showMessageDialog(null,
 							"Could not read the service definition from "
@@ -411,19 +417,42 @@ public class AddGisServiceDialog extends HelpEnabledDialog {
 				}
 			};
 		}.start();
+		
 		closeDialog();
 
 	}
+	
+	protected abstract void addRegistry(String serviceURL, List<String> processIdentifiers);
 
 	private void closeDialog() {
 		setVisible(false);
 		dispose();
 	}
 	
+	private List<String> getSelectedProcesses()
+	{
+		List<String> result = new ArrayList<String>();
+		
+		DefaultTableModel model = (DefaultTableModel) processesTable.getModel();
+		
+		int rowNr = model.getRowCount();
+		
+		for(int i=0; i<rowNr;i++)
+		{
+			if ((boolean) model.getValueAt(i, CHECKBOX_COLUMN))
+			{
+				result.add((String) model.getValueAt(i, PROCESS_ID_COLUMN));
+			}
+		}
+		
+		return result;
+		
+	}
+	
 	private JTextField createFilterTextField() {
 		final JTextField field = new JTextField();
 
-		final int FILTER_COLUMN_INDEX = 1;
+		final int FILTER_COLUMN_INDEX = PROCESS_ID_COLUMN;
 
 		field.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
@@ -462,11 +491,8 @@ public class AddGisServiceDialog extends HelpEnabledDialog {
 
 	private boolean isValidURL(String url)
 	{
-		
 		boolean result = true;
-		
-		url = url.trim();
-		
+			
 		if (url.length()<=0)
 			return false;
 		
@@ -511,9 +537,7 @@ public class AddGisServiceDialog extends HelpEnabledDialog {
 		private boolean isChecked;
 		private String processID;
 		
-		public ProcessTableRow()
-		{
-			
+		public ProcessTableRow() { 	
 		}
 		
 		public ProcessTableRow(boolean isChecked, String processID)
