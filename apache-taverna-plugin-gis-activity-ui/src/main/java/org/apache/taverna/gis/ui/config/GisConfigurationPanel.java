@@ -22,8 +22,8 @@ public class GisConfigurationPanel
 	private GisActivity activity;
 	private GisActivityConfigurationBean configBean;
 	
+	private JTextField fieldServiceURI;
 	private JTextField fieldProcessIdentifier;
-	private JTextField fieldURI;
 
 	public GisConfigurationPanel(GisActivity activity) {
 		this.activity = activity;
@@ -35,17 +35,17 @@ public class GisConfigurationPanel
 		setLayout(new GridLayout(0, 2));
 
 		// FIXME: Create GUI depending on activity configuration bean
-		JLabel labelString = new JLabel("Example string:");
-		add(labelString);
-		fieldProcessIdentifier = new JTextField(20);
-		add(fieldProcessIdentifier);
-		labelString.setLabelFor(fieldProcessIdentifier);
+		JLabel labelServiceURI = new JLabel("Service URI:");
+		add(labelServiceURI);
+		fieldServiceURI = new JTextField(100);
+		add(fieldServiceURI);
+		labelServiceURI.setLabelFor(fieldServiceURI);
 
-		JLabel labelURI = new JLabel("Example URI:");
-		add(labelURI);
-		fieldURI = new JTextField(25);
-		add(fieldURI);
-		labelURI.setLabelFor(fieldURI);
+		JLabel labelProcessIdentifier = new JLabel("Process Identifier:");
+		add(labelProcessIdentifier);
+		fieldProcessIdentifier = new JTextField(100);
+		add(fieldProcessIdentifier);
+		labelProcessIdentifier.setLabelFor(fieldProcessIdentifier);
 
 		// Populate fields from activity configuration bean
 		refreshConfiguration();
@@ -57,13 +57,16 @@ public class GisConfigurationPanel
 	@Override
 	public boolean checkValues() {
 		try {
-			URI.create(fieldURI.getText());
+			URI.create(fieldServiceURI.getText());
 		} catch (IllegalArgumentException ex) {
 			JOptionPane.showMessageDialog(this, ex.getCause().getMessage(),
 					"Invalid URI", JOptionPane.ERROR_MESSAGE);
 			// Not valid, return false
 			return false;
 		}
+		
+		// TODO: Should check if process exists
+		
 		// All valid, return true
 		return true;
 	}
@@ -83,11 +86,12 @@ public class GisConfigurationPanel
 	 */
 	@Override
 	public boolean isConfigurationChanged() {
-		String originalString = configBean.getProcessIdentifier();
-		String originalUri = configBean.getOgcServiceUri().toASCIIString();
+		String originalServiceUri = configBean.getOgcServiceUri().toASCIIString();
+		String originalProcessIdentifier = configBean.getProcessIdentifier();
+		
 		// true (changed) unless all fields match the originals
-		return ! (originalString.equals(fieldProcessIdentifier.getText())
-				&& originalUri.equals(fieldURI.getText()));
+		return ! (originalServiceUri.equals(fieldServiceURI.getText())
+				&& originalProcessIdentifier.equals(fieldProcessIdentifier.getText()));
 	}
 
 	/**
@@ -99,8 +103,9 @@ public class GisConfigurationPanel
 		configBean = new GisActivityConfigurationBean();
 		
 		// FIXME: Update bean fields from your UI elements
+		configBean.setOgcServiceUri(URI.create(fieldServiceURI.getText()));
 		configBean.setProcessIdentifier(fieldProcessIdentifier.getText());
-		configBean.setOgcServiceUri(URI.create(fieldURI.getText()));
+		
 	}
 
 	/**
@@ -112,7 +117,8 @@ public class GisConfigurationPanel
 		configBean = activity.getConfiguration();
 		
 		// FIXME: Update UI elements from your bean fields
+		fieldServiceURI.setText(configBean.getOgcServiceUri().toASCIIString());
 		fieldProcessIdentifier.setText(configBean.getProcessIdentifier());
-		fieldURI.setText(configBean.getOgcServiceUri().toASCIIString());
+		
 	}
 }

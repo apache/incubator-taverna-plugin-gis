@@ -1,13 +1,24 @@
 package org.apache.taverna.gis.ui.serviceprovider;
 
 import java.net.URI;
+import java.util.Arrays;
+import java.util.List;
 
 import net.sf.taverna.t2.lang.beans.PropertyAnnotated;
 import net.sf.taverna.t2.lang.beans.PropertyAnnotation;
 
 public class GisServiceProviderConfig extends PropertyAnnotated {
-	private URI ogcServiceUri = URI.create("http://localhost:8080/geoserver/ows");
-	private String processIdentifier = "gs:StringConcatWPS";
+	private URI ogcServiceUri = URI.create("");
+	private List<String> processIdentifiers = Arrays.asList("");
+	
+	public GisServiceProviderConfig() {
+		
+	}
+	
+	public GisServiceProviderConfig(String serviceURL, List<String> processIdentifiers ) {
+		this.ogcServiceUri = URI.create(serviceURL);
+		this.processIdentifiers = processIdentifiers;
+	}
 	
 	@PropertyAnnotation(displayName="OGC Web Service URI", preferred=true)
 	public URI getOgcServiceUri() {
@@ -18,11 +29,11 @@ public class GisServiceProviderConfig extends PropertyAnnotated {
 	}
 	
 	@PropertyAnnotation(displayName="Process Identifier")
-	public String getProcessIdentifier() {
-		return processIdentifier;
+	public List<String> getProcessIdentifiers() {
+		return processIdentifiers;
 	}
-	public void setProcessIdentifier(String processIdentifier) {
-		this.processIdentifier = processIdentifier;
+	public void setProcessIdentifiers(List<String> processIdentifiers) {
+		this.processIdentifiers = processIdentifiers;
 	}
 	
 }
