@@ -8,9 +8,12 @@ public class PortTypeDescriptor {
 	private boolean allowLiteralValues;
 	private String handledReferenceSchemes;
 	private Class<?> translatedElementType;
+	private PortDataType portDataType;
 	private boolean isRequired;
-	private List<String> supportedFormats;
-	private String defaultFormat;
+	private List<ComplexDataTypeDescriptor> supportedComplexFormats;
+	private ComplexDataTypeDescriptor defaultComplexFormat;
+	private List<String> supportedBoundingBoxFormats;
+	private String defaultBoundingBoxFormat;
 	
 	public String getName() {
 		return name;
@@ -42,23 +45,41 @@ public class PortTypeDescriptor {
 	public void setTranslatedElementType(Class<?> translatedElementType) {
 		this.translatedElementType = translatedElementType;
 	}
+	public PortDataType getPortDataType() {
+		return portDataType;
+	}
+	public void setPortDataType(PortDataType portDataType) {
+		this.portDataType = portDataType;
+	}
 	public boolean isRequired() {
 		return isRequired;
 	}
 	public void setRequired(boolean isRequired) {
 		this.isRequired = isRequired;
 	}
-	public List<String> getSupportedFormats() {
-		return supportedFormats;
+	public List<ComplexDataTypeDescriptor> getSupportedComplexFormats() {
+		return supportedComplexFormats;
 	}
-	public void setSupportedFormats(List<String> supportedFormats) {
-		this.supportedFormats = supportedFormats;
+	public void setSupportedComplexFormats(List<ComplexDataTypeDescriptor> supportedComplexFormats) {
+		this.supportedComplexFormats = supportedComplexFormats;
 	}
-	public String getDefaultFormat() {
-		return defaultFormat;
+	public ComplexDataTypeDescriptor getDefaultComplexFormat() {
+		return defaultComplexFormat;
 	}
-	public void setDefaultFormat(String defaultFormat) {
-		this.defaultFormat = defaultFormat;
+	public void setDefaultComplexFormat(ComplexDataTypeDescriptor defaultComplexFormat) {
+		this.defaultComplexFormat = defaultComplexFormat;
+	}
+	public List<String> getSupportedBoundingBoxFormats() {
+		return supportedBoundingBoxFormats;
+	}
+	public void setSupportedBoundingBoxFormats(List<String> supportedBoundingBoxFormats) {
+		this.supportedBoundingBoxFormats = supportedBoundingBoxFormats;
+	}
+	public String getDefaultBoundingBoxFormat() {
+		return defaultBoundingBoxFormat;
+	}
+	public void setDefaultBoundingBoxFormat(String defaultBoundingBoxFormat) {
+		this.defaultBoundingBoxFormat = defaultBoundingBoxFormat;
 	}
 	
 }

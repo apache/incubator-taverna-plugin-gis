@@ -28,15 +28,19 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.apache.taverna.gis.client.ComplexDataTypeDescriptor;
 import org.apache.taverna.gis.client.IGisClient;
+import org.apache.taverna.gis.client.PortDataType;
 import org.apache.taverna.gis.client.PortTypeDescriptor;
 import org.n52.wps.client.WPSClientException;
 import org.n52.wps.client.WPSClientSession;
 
 import net.opengis.ows.x11.LanguageStringType;
+import net.opengis.wps.x100.CRSsType;
 import net.opengis.wps.x100.CapabilitiesDocument;
 import net.opengis.wps.x100.ComplexDataCombinationType;
 import net.opengis.wps.x100.ComplexDataCombinationsType;
+import net.opengis.wps.x100.ComplexDataDescriptionType;
 import net.opengis.wps.x100.InputDescriptionType;
 import net.opengis.wps.x100.OutputDescriptionType;
 import net.opengis.wps.x100.ProcessBriefType;
@@ -170,65 +174,17 @@ public class GisClientNorthImpl implements IGisClient {
 			myNewInputPort.setAllowLiteralValues(true);
 			myNewInputPort.setHandledReferenceSchemes(null); // is not used in Taverna
 			myNewInputPort.setTranslatedElementType(String.class);
+			myNewInputPort.setPortDataType(getPortDataType(input));
 			myNewInputPort.setRequired(input.getMinOccurs().compareTo(BigInteger.valueOf(1))>0?true:false);
-			myNewInputPort.setSupportedFormats(getPortSupportedFormats(input));
-			
-			
+			myNewInputPort.setSupportedComplexFormats(getInputPortSupportedComplexFormats(input));
+			myNewInputPort.setDefaultComplexFormat(getInputPortDefaultComplexFormat(input));
+			myNewInputPort.setSupportedBoundingBoxFormats(getInputPortSupportedBoundingBoxFormats(input));
+			myNewInputPort.setDefaultBoundingBoxFormat(getInputPortDefaultBoundingBoxFormats(input));
 			
 			inputPorts.add(myNewInputPort);
 		}
 	
 		return inputPorts;
-	}
-
-	/**
-	 * @param input port
-	 * @return List of supported formats
-	 */
-	private List<String> getPortSupportedFormats(InputDescriptionType inputPort)
-	{
-		List<String> supportedFormats = new ArrayList<String>();
-		
-		if (inputPort.getLiteralData() == null)
-			return supportedFormats;
-		
-		if (inputPort.getComplexData()==null)
-			return supportedFormats;
-		else
-		{
-			
-			inputPort.getBoundingBoxData().getSupported().getCRSArray();
-			inputPort.getBoundingBoxData().getDefault().getCRS();
-			
-			
-			ComplexDataCombinationsType complexDataType = inputPort.getComplexData().getSupported();
-			inputPort.getComplexData().getDefault().getFormat();
-			complexDataType.getFormatArray(0).getEncoding();
-			complexDataType.getFormatArray(0).getMimeType();
-			complexDataType.getFormatArray(0).getSchema();
-			
-			
-		}
-		
-		
-		 
-		
-		return supportedFormats;
-	}
-	
-	/**
-	 * @param inputPort
-	 * @return
-	 */
-	private int getInputPortDepth(InputDescriptionType inputPort)
-	{
-		// The input has cardinality (Min/Max Occurs) of 1 when it returns 1 value and greater than 1  when it 
-		// returns multiple values 
-		// if compareTo returns 1 then first value (MaxOccurs) is greater than 1. it means that there is more than one occurrence 
-		// therefore the depth is greater than 0
-		int depth = ((inputPort.getMaxOccurs().compareTo(BigInteger.valueOf(1))==1) ? 1 : 0);
-		
-		return depth;
 	}
 
 	@Override
@@ -254,6 +210,13 @@ public class GisClientNorthImpl implements IGisClient {
 			myNewOutputPort.setName(output.getIdentifier().getStringValue());
 			myNewOutputPort.setDepth(0); // output port depth is always 1
 			
+			myNewOutputPort.setPortDataType(getPortDataType(output));
+			myNewOutputPort.setRequired(false);
+			myNewOutputPort.setSupportedComplexFormats(getOutputPortSupportedComplexFormats(output));
+			myNewOutputPort.setDefaultComplexFormat(getOutputPortDefaultComplexFormat(output));
+			myNewOutputPort.setSupportedBoundingBoxFormats(getOutputPortSupportedBoundingBoxFormats(output));
+			myNewOutputPort.setDefaultBoundingBoxFormat(getOutputPortDefaultBoundingBoxFormats(output));
+			
 			outputPorts.add(myNewOutputPort);
 		}
 
@@ -277,4 +240,217 @@ public class GisClientNorthImpl implements IGisClient {
 		
 	}
 
+	private PortDataType getPortDataType(InputDescriptionType inputPort)
+	{
+		// set default dataType to literal data
+		PortDataType portDataType = PortDataType.LITERAL_DATA;
+		
+		if (inputPort.getLiteralData()!=null)
+			return portDataType;
+		
+		if(inputPort.getComplexData()!=null)
+			return PortDataType.COMPLEX_DATA;
+		
+		if(inputPort.getBoundingBoxData()!=null)
+			return PortDataType.BOUNDING_BOX_DATA;
+		
+		return portDataType;
+		
+	}
+	
+	private PortDataType getPortDataType(OutputDescriptionType outputPort)
+	{
+		// set default dataType to literal data
+		PortDataType portDataType = PortDataType.LITERAL_DATA;
+		
+		if (outputPort.getLiteralOutput()!=null)
+			return portDataType;
+		
+		if(outputPort.getComplexOutput()!=null)
+			return PortDataType.COMPLEX_DATA;
+		
+		if(outputPort.getBoundingBoxOutput()!=null)
+			return PortDataType.BOUNDING_BOX_DATA;
+		
+		return portDataType;
+		
+	}
+	
+	/**
+	 * @param input port
+	 * @return List of supported formats
+	 */
+	private List<ComplexDataTypeDescriptor> getInputPortSupportedComplexFormats(InputDescriptionType inputPort)
+	{
+		List<ComplexDataTypeDescriptor> supportedComplexFormats = new ArrayList<ComplexDataTypeDescriptor>();
+		
+		if (inputPort.getComplexData()==null)
+			return supportedComplexFormats;
+		else
+		{
+			ComplexDataCombinationsType complexDataSupportedTypes = inputPort.getComplexData().getSupported();
+			
+			if (complexDataSupportedTypes.sizeOfFormatArray()==0)
+				return supportedComplexFormats;
+			
+			for(ComplexDataDescriptionType format : complexDataSupportedTypes.getFormatArray())
+			{
+				supportedComplexFormats.add(new ComplexDataTypeDescriptor(format.getMimeType(),format.getEncoding(), format.getSchema()));
+			}
+		}
+		
+		return supportedComplexFormats;
+	}
+	
+	private ComplexDataTypeDescriptor getInputPortDefaultComplexFormat(InputDescriptionType inputPort)
+	{
+		ComplexDataTypeDescriptor defaultFormat = null;
+		
+		if (inputPort.getComplexData()==null)
+			if (inputPort.getComplexData().getDefault()!=null)
+				if(inputPort.getComplexData().getDefault().getFormat()!=null)
+				{
+					ComplexDataDescriptionType outputDefaultFormat = inputPort.getComplexData().getDefault().getFormat();
+					defaultFormat = new ComplexDataTypeDescriptor(outputDefaultFormat.getMimeType(),outputDefaultFormat.getEncoding(),outputDefaultFormat.getSchema());
+				}
+					
+		return defaultFormat;
+		
+	}
+	
+	private List<String> getInputPortSupportedBoundingBoxFormats(InputDescriptionType inputPort)
+	{
+		List<String> supportedBoundingBoxFormats = new ArrayList<String>();
+		
+		if (inputPort.getBoundingBoxData()==null)
+			return supportedBoundingBoxFormats;
+		else
+		{
+			CRSsType boundingBoxDataSupportedTypes = inputPort.getBoundingBoxData().getSupported();
+			
+			if (boundingBoxDataSupportedTypes.sizeOfCRSArray()==0)
+				return supportedBoundingBoxFormats;
+			
+			for(String format : boundingBoxDataSupportedTypes.getCRSArray())
+			{
+				supportedBoundingBoxFormats.add(format);
+			}
+			
+		}
+		
+		return supportedBoundingBoxFormats;
+
+	}
+	
+	private String getInputPortDefaultBoundingBoxFormats(InputDescriptionType inputPort)
+	{
+		String defaultFormat = null;
+		
+		if (inputPort.getBoundingBoxData()==null)
+			if (inputPort.getBoundingBoxData().getDefault()!=null)
+				if(inputPort.getBoundingBoxData().getDefault().getCRS()!=null)
+				{
+					defaultFormat = inputPort.getBoundingBoxData().getDefault().getCRS();
+				}
+					
+		return defaultFormat;
+		
+	}
+	
+	/**
+	 * @param input port
+	 * @return List of supported formats
+	 */
+	private List<ComplexDataTypeDescriptor> getOutputPortSupportedComplexFormats(OutputDescriptionType outputPort)
+	{
+		List<ComplexDataTypeDescriptor> supportedComplexFormats = new ArrayList<ComplexDataTypeDescriptor>();
+		
+		if (outputPort.getComplexOutput()==null)
+			return supportedComplexFormats;
+		else
+		{
+			ComplexDataCombinationsType complexDataSupportedTypes = outputPort.getComplexOutput().getSupported();
+			
+			if (complexDataSupportedTypes.sizeOfFormatArray()==0)
+				return supportedComplexFormats;
+			
+			for(ComplexDataDescriptionType format : complexDataSupportedTypes.getFormatArray())
+			{
+				supportedComplexFormats.add(new ComplexDataTypeDescriptor(format.getMimeType(),format.getEncoding(), format.getSchema()));
+			}
+		}
+		
+		return supportedComplexFormats;
+	}
+	
+	private ComplexDataTypeDescriptor getOutputPortDefaultComplexFormat(OutputDescriptionType outputPort)
+	{
+		ComplexDataTypeDescriptor defaultFormat = null;
+		
+		if (outputPort.getComplexOutput()==null)
+			if (outputPort.getComplexOutput().getDefault()!=null)
+				if(outputPort.getComplexOutput().getDefault().getFormat()!=null)
+				{
+					ComplexDataDescriptionType outputDefaultFormat = outputPort.getComplexOutput().getDefault().getFormat();
+					defaultFormat = new ComplexDataTypeDescriptor(outputDefaultFormat.getMimeType(),outputDefaultFormat.getEncoding(),outputDefaultFormat.getSchema());
+				}
+					
+		return defaultFormat;
+		
+	}
+	
+	private List<String> getOutputPortSupportedBoundingBoxFormats(OutputDescriptionType outputPort)
+	{
+		List<String> supportedBoundingBoxFormats = new ArrayList<String>();
+		
+		if (outputPort.getBoundingBoxOutput()==null)
+			return supportedBoundingBoxFormats;
+		else
+		{
+			CRSsType boundingBoxDataSupportedTypes = outputPort.getBoundingBoxOutput().getSupported();
+			
+			if (boundingBoxDataSupportedTypes.sizeOfCRSArray()==0)
+				return supportedBoundingBoxFormats;
+			
+			for(String format : boundingBoxDataSupportedTypes.getCRSArray())
+			{
+				supportedBoundingBoxFormats.add(format);
+			}
+			
+		}
+		
+		return supportedBoundingBoxFormats;
+
+	}
+	
+	private String getOutputPortDefaultBoundingBoxFormats(OutputDescriptionType outputPort)
+	{
+		String defaultFormat = null;
+		
+		if (outputPort.getBoundingBoxOutput()==null)
+			if (outputPort.getBoundingBoxOutput().getDefault()!=null)
+				if(outputPort.getBoundingBoxOutput().getDefault().getCRS()!=null)
+				{
+					defaultFormat = outputPort.getBoundingBoxOutput().getDefault().getCRS();
+				}
+					
+		return defaultFormat;
+		
+	}
+	
+	/**
+	 * @param inputPort
+	 * @return
+	 */
+	private int getInputPortDepth(InputDescriptionType inputPort)
+	{
+		// The input has cardinality (Min/Max Occurs) of 1 when it returns 1 value and greater than 1  when it 
+		// returns multiple values 
+		// if compareTo returns 1 then first value (MaxOccurs) is greater than 1. it means that there is more than one occurrence 
+		// therefore the depth is greater than 0
+		int depth = ((inputPort.getMaxOccurs().compareTo(BigInteger.valueOf(1))==1) ? 1 : 0);
+		
+		return depth;
+	}
+	
 }
