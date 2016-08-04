@@ -1,11 +1,17 @@
 package org.apache.taverna.gis.client.impl;
 
+import java.util.List;
+
 public class TypeDescriptor {
 	private String name;
 	private Integer depth;
 	private boolean allowLiteralValues;
 	private String handledReferenceSchemes;
 	private Class<?> translatedElementType;
+	private boolean isRequired;
+	private List<String> supportedFormats;
+	private String defaultFormat;
+	
 	public String getName() {
 		return name;
 	}
@@ -35,6 +41,24 @@ public class TypeDescriptor {
 	}
 	public void setTranslatedElementType(Class<?> translatedElementType) {
 		this.translatedElementType = translatedElementType;
+	}
+	public boolean isRequired() {
+		return isRequired;
+	}
+	public void setRequired(boolean isRequired) {
+		this.isRequired = isRequired;
+	}
+	public List<String> getSupportedFormats() {
+		return supportedFormats;
+	}
+	public void setSupportedFormats(List<String> supportedFormats) {
+		this.supportedFormats = supportedFormats;
+	}
+	public String getDefaultFormat() {
+		return defaultFormat;
+	}
+	public void setDefaultFormat(String defaultFormat) {
+		this.defaultFormat = defaultFormat;
 	}
 	
 }

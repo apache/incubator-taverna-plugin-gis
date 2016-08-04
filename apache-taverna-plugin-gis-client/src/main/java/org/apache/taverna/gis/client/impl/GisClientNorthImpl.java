@@ -34,6 +34,8 @@ import org.n52.wps.client.WPSClientSession;
 
 import net.opengis.ows.x11.LanguageStringType;
 import net.opengis.wps.x100.CapabilitiesDocument;
+import net.opengis.wps.x100.ComplexDataCombinationType;
+import net.opengis.wps.x100.ComplexDataCombinationsType;
 import net.opengis.wps.x100.InputDescriptionType;
 import net.opengis.wps.x100.OutputDescriptionType;
 import net.opengis.wps.x100.ProcessBriefType;
@@ -167,6 +169,10 @@ public class GisClientNorthImpl implements IGisClient {
 			myNewInputPort.setAllowLiteralValues(true);
 			myNewInputPort.setHandledReferenceSchemes(null); // is not used in Taverna
 			myNewInputPort.setTranslatedElementType(String.class);
+			myNewInputPort.setRequired(input.getMinOccurs().compareTo(BigInteger.valueOf(1))>0?true:false);
+			myNewInputPort.setSupportedFormats(getPortSupportedFormats(input));
+			
+			
 			
 			inputPorts.add(myNewInputPort);
 		}
@@ -174,6 +180,41 @@ public class GisClientNorthImpl implements IGisClient {
 		return inputPorts;
 	}
 
+	/**
+	 * @param input port
+	 * @return List of supported formats
+	 */
+	private List<String> getPortSupportedFormats(InputDescriptionType inputPort)
+	{
+		List<String> supportedFormats = new ArrayList<String>();
+		
+		if (inputPort.getLiteralData() == null)
+			return supportedFormats;
+		
+		if (inputPort.getComplexData()==null)
+			return supportedFormats;
+		else
+		{
+			
+			inputPort.getBoundingBoxData().getSupported().getCRSArray();
+			inputPort.getBoundingBoxData().getDefault().getCRS();
+			
+			
+			ComplexDataCombinationsType complexDataType = inputPort.getComplexData().getSupported();
+			inputPort.getComplexData().getDefault().getFormat();
+			complexDataType.getFormatArray(0).getEncoding();
+			complexDataType.getFormatArray(0).getMimeType();
+			complexDataType.getFormatArray(0).getSchema();
+			
+			
+		}
+		
+		
+		 
+		
+		return supportedFormats;
+	}
+	
 	/**
 	 * @param inputPort
 	 * @return
