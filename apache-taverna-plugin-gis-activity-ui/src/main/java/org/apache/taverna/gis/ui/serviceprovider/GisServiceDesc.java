@@ -67,7 +67,7 @@ public class GisServiceDesc extends ServiceDescription<GisActivityConfigurationB
 	@Override
 	public List<String> getPath() {
 		// For deeper paths you may return several strings
-		return Arrays.asList("GIS", "WPS " + getOgcServiceUri());
+		return Arrays.asList("GIS", "WPS - " + getOgcServiceUri());
 	}
 
 	/**

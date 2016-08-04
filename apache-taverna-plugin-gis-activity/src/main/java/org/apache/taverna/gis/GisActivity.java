@@ -86,7 +86,6 @@ public class GisActivity extends AbstractAsynchronousActivity<GisActivityConfigu
 		
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void executeAsynch(final Map<String, T2Reference> inputs, final AsynchronousActivityCallback callback) {
 		// Execute service asynchronously
