@@ -1,8 +1,8 @@
-package org.apache.taverna.gis.client.impl;
+package org.apache.taverna.gis.client;
 
 import java.util.List;
 
-public class TypeDescriptor {
+public class PortTypeDescriptor {
 	private String name;
 	private Integer depth;
 	private boolean allowLiteralValues;

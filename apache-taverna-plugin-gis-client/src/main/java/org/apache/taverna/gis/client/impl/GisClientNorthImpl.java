@@ -29,6 +29,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.apache.taverna.gis.client.IGisClient;
+import org.apache.taverna.gis.client.PortTypeDescriptor;
 import org.n52.wps.client.WPSClientException;
 import org.n52.wps.client.WPSClientSession;
 
@@ -138,10 +139,10 @@ public class GisClientNorthImpl implements IGisClient {
 		return outputPorts;
 	}
 	
-	public List<TypeDescriptor> getTaverna2InputPorts(String processID)
+	public List<PortTypeDescriptor> getTaverna2InputPorts(String processID)
 	{
         
-		List<TypeDescriptor> inputPorts = new ArrayList<TypeDescriptor>();
+		List<PortTypeDescriptor> inputPorts = new ArrayList<PortTypeDescriptor>();
 		
 		ProcessDescriptionType processDescription = null;
 		
@@ -162,7 +163,7 @@ public class GisClientNorthImpl implements IGisClient {
 		InputDescriptionType[] inputList = dataInputs.getInputArray();
 
 		for (InputDescriptionType input : inputList) {
-			TypeDescriptor myNewInputPort = new TypeDescriptor();
+			PortTypeDescriptor myNewInputPort = new PortTypeDescriptor();
 			
 			myNewInputPort.setName(input.getIdentifier().getStringValue());
 			myNewInputPort.setDepth(getInputPortDepth(input));
@@ -231,8 +232,8 @@ public class GisClientNorthImpl implements IGisClient {
 	}
 
 	@Override
-	public List<TypeDescriptor> getTaverna2OutputPorts(String processID) {
-		List<TypeDescriptor> outputPorts = new ArrayList<TypeDescriptor>();
+	public List<PortTypeDescriptor> getTaverna2OutputPorts(String processID) {
+		List<PortTypeDescriptor> outputPorts = new ArrayList<PortTypeDescriptor>();
 
 		ProcessDescriptionType processDescription = null;
 
@@ -248,7 +249,7 @@ public class GisClientNorthImpl implements IGisClient {
 		OutputDescriptionType[] outputList = processDescription.getProcessOutputs().getOutputArray();
 
 		for (OutputDescriptionType output : outputList) {
-			TypeDescriptor myNewOutputPort = new TypeDescriptor();
+			PortTypeDescriptor myNewOutputPort = new PortTypeDescriptor();
 
 			myNewOutputPort.setName(output.getIdentifier().getStringValue());
 			myNewOutputPort.setDepth(0); // output port depth is always 1

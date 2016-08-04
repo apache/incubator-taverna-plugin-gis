@@ -10,7 +10,6 @@ import javax.swing.JOptionPane;
 
 import org.apache.log4j.Logger;
 import org.apache.taverna.gis.client.*;
-import org.apache.taverna.gis.client.impl.TypeDescriptor;
 
 import net.sf.taverna.t2.servicedescriptions.AbstractConfigurableServiceProvider;
 import net.sf.taverna.t2.servicedescriptions.ConfigurableServiceProvider;
@@ -62,11 +61,11 @@ public class GisServiceProvider extends AbstractConfigurableServiceProvider<GisS
 				service.setDescription(processID);
 				
 				// Get input ports
-				List<TypeDescriptor> inputList = gisServiceClient.getTaverna2InputPorts(processID);
+				List<PortTypeDescriptor> inputList = gisServiceClient.getTaverna2InputPorts(processID);
 
 		        List<ActivityInputPortDefinitionBean> inputPortDefinitions = new ArrayList<ActivityInputPortDefinitionBean>();
 
-		        for (TypeDescriptor input : inputList) {
+		        for (PortTypeDescriptor input : inputList) {
 		    		ActivityInputPortDefinitionBean newInputPort = new ActivityInputPortDefinitionBean();
 		    		newInputPort.setName(input.getName());
 		    		newInputPort.setDepth(input.getDepth());
@@ -82,10 +81,10 @@ public class GisServiceProvider extends AbstractConfigurableServiceProvider<GisS
 				
 		        // Get output ports
 		        
-		        List<TypeDescriptor> outputList = gisServiceClient.getTaverna2OutputPorts(processID);
+		        List<PortTypeDescriptor> outputList = gisServiceClient.getTaverna2OutputPorts(processID);
 		        List<ActivityOutputPortDefinitionBean> outputPortDefinitions = new ArrayList<ActivityOutputPortDefinitionBean>();
 		        
-		        for( TypeDescriptor output : outputList )
+		        for( PortTypeDescriptor output : outputList )
 		        {
 		        	ActivityOutputPortDefinitionBean newOutputPort = new ActivityOutputPortDefinitionBean();
 		        	newOutputPort.setName(output.getName());

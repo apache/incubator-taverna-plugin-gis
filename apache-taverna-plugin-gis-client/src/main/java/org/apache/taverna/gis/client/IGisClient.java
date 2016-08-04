@@ -24,8 +24,6 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 
-import org.apache.taverna.gis.client.impl.TypeDescriptor;
-
 public interface IGisClient {
 	
 	// TODO: The interface is specific to WPS services. It should be generic so that it can handle different 
@@ -44,8 +42,8 @@ public interface IGisClient {
 	
 	public HashMap<String, Integer> getProcessOutputPorts(String processID);
 	
-	public List<TypeDescriptor> getTaverna2InputPorts(String processID);
+	public List<PortTypeDescriptor> getTaverna2InputPorts(String processID);
 	
-	public List<TypeDescriptor> getTaverna2OutputPorts(String processID);
+	public List<PortTypeDescriptor> getTaverna2OutputPorts(String processID);
 	
 }
