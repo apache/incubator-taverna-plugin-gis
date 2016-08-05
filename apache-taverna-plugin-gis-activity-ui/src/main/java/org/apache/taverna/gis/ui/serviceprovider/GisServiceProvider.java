@@ -61,40 +61,15 @@ public class GisServiceProvider extends AbstractConfigurableServiceProvider<GisS
 				service.setDescription(processID);
 				
 				// Get input ports
-				List<PortTypeDescriptor> inputList = gisServiceClient.getTaverna2InputPorts(processID);
+				List<IPortDataDescriptor> inputList = gisServiceClient.getTaverna2InputPorts(processID);
 
-		        List<ActivityInputPortDefinitionBean> inputPortDefinitions = new ArrayList<ActivityInputPortDefinitionBean>();
-
-		        for (PortTypeDescriptor input : inputList) {
-		    		ActivityInputPortDefinitionBean newInputPort = new ActivityInputPortDefinitionBean();
-		    		newInputPort.setName(input.getName());
-		    		newInputPort.setDepth(input.getDepth());
-		    		newInputPort.setAllowsLiteralValues(input.isAllowLiteralValues());
-		    		newInputPort.setHandledReferenceSchemes(null);
-		    		newInputPort.setTranslatedElementType(input.getTranslatedElementType());
-		    		
-		    		inputPortDefinitions.add(newInputPort);
-		    		
-		        }
-		        
-		        service.setInputPortDefinitions(inputPortDefinitions);
+		        service.setInputPortDefinitions(inputList);
 				
 		        // Get output ports
 		        
-		        List<PortTypeDescriptor> outputList = gisServiceClient.getTaverna2OutputPorts(processID);
-		        List<ActivityOutputPortDefinitionBean> outputPortDefinitions = new ArrayList<ActivityOutputPortDefinitionBean>();
+		        List<IPortDataDescriptor> outputList = gisServiceClient.getTaverna2OutputPorts(processID);
 		        
-		        for( PortTypeDescriptor output : outputList )
-		        {
-		        	ActivityOutputPortDefinitionBean newOutputPort = new ActivityOutputPortDefinitionBean();
-		        	newOutputPort.setName(output.getName());
-		        	newOutputPort.setDepth(output.getDepth());
-		        	
-		        	outputPortDefinitions.add(newOutputPort);
-		        	
-		        }
-			
-		        service.setOutputPortDefinitions(outputPortDefinitions);
+		        service.setOutputPortDefinitions(outputList);
 		        
 		        results.add(service);
 
