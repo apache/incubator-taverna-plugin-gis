@@ -10,16 +10,16 @@ import net.opengis.wps.x100.ComplexDataDescriptionType;
 import net.opengis.wps.x100.InputDescriptionType;
 import net.opengis.wps.x100.OutputDescriptionType;
 
-public class PortDataDescriptroFactory {
+public class PortDataDescriptorFactory {
 
-	private static PortDataDescriptroFactory instance;
+	private static PortDataDescriptorFactory instance;
 	
-	protected PortDataDescriptroFactory(){}
+	protected PortDataDescriptorFactory(){}
 	
-	public static PortDataDescriptroFactory getInstance()
+	public static PortDataDescriptorFactory getInstance()
 	{
 		if (instance==null)
-			return new PortDataDescriptroFactory();
+			return new PortDataDescriptorFactory();
 		else
 			return instance;
 	}
