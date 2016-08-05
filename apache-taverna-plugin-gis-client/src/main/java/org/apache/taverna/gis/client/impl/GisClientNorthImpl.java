@@ -28,45 +28,48 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.apache.taverna.gis.client.ComplexDataTypeDescriptor;
+import org.apache.taverna.gis.client.ComplexDataFormat;
+import org.apache.taverna.gis.client.ComplexPortDataDescriptor;
 import org.apache.taverna.gis.client.IGisClient;
-import org.apache.taverna.gis.client.PortDataType;
-import org.apache.taverna.gis.client.PortTypeDescriptor;
+import org.apache.taverna.gis.client.IPortDataDescriptor;
+import org.apache.taverna.gis.client.PortDataDescriptorFactory;
+import org.n52.wps.client.ExecuteRequestBuilder;
+import org.n52.wps.client.ExecuteResponseAnalyser;
 import org.n52.wps.client.WPSClientException;
 import org.n52.wps.client.WPSClientSession;
 
 import net.opengis.ows.x11.LanguageStringType;
-import net.opengis.wps.x100.CRSsType;
 import net.opengis.wps.x100.CapabilitiesDocument;
-import net.opengis.wps.x100.ComplexDataCombinationType;
-import net.opengis.wps.x100.ComplexDataCombinationsType;
-import net.opengis.wps.x100.ComplexDataDescriptionType;
+import net.opengis.wps.x100.DataType;
 import net.opengis.wps.x100.InputDescriptionType;
+import net.opengis.wps.x100.OutputDataType;
 import net.opengis.wps.x100.OutputDescriptionType;
 import net.opengis.wps.x100.ProcessBriefType;
 import net.opengis.wps.x100.ProcessDescriptionType;
 import net.opengis.wps.x100.ProcessDescriptionType.DataInputs;
 import net.opengis.wps.x100.WPSCapabilitiesType;
+import net.opengis.wps.x100.ExecuteDocument;
+import net.opengis.wps.x100.ExecuteResponseDocument;
 
 public class GisClientNorthImpl implements IGisClient {
 
 	private Logger logger = Logger.getLogger(GisClientNorthImpl.class);
-	
+
 	private URI serviceURI = null;
 	private WPSClientSession wpsClient;
-	
+
 	public GisClientNorthImpl(String serviceURL) {
 		this.serviceURI = URI.create(serviceURL);
 		wpsClient = WPSClientSession.getInstance();
-		
+
 		try {
 			wpsClient.connect(serviceURI.toString());
 		} catch (WPSClientException ex) {
 			logger.error("Failed to connect to service: " + serviceURI, ex);
 		}
-		
+
 	}
-	
+
 	@Override
 	public String getServiceCapabilities(URI serviceURI) {
 
@@ -74,7 +77,7 @@ public class GisClientNorthImpl implements IGisClient {
 
 		LanguageStringType[] serviceAbstract = capabilities.getCapabilities().getServiceIdentification()
 				.getTitleArray();
-	
+
 		if (serviceAbstract != null && serviceAbstract.length > 0)
 			return serviceAbstract[0].getStringValue();
 		else
@@ -84,112 +87,101 @@ public class GisClientNorthImpl implements IGisClient {
 	@Override
 	public HashMap<String, Integer> getProcessInputPorts(String processID) {
 		HashMap<String, Integer> inputPorts = new HashMap<String, Integer>();
-		
+
 		ProcessDescriptionType processDescription = null;
-		
+
 		try {
 			processDescription = wpsClient.getProcessDescription(serviceURI.toString(), processID);
 		} catch (IOException ex) {
 			logger.error("Failed to list input ports for process: " + processID, ex);
 		}
 
-		if (processDescription==null)
+		if (processDescription == null)
 			return inputPorts;
-		
+
 		DataInputs dataInputs = processDescription.getDataInputs();
-		
+
 		if (dataInputs == null)
 			return inputPorts;
-		
+
 		InputDescriptionType[] inputList = dataInputs.getInputArray();
 
 		for (InputDescriptionType input : inputList) {
 
-			// if compareTo returns 1 then first value is greater than 1. it means that there is more than one occurrence therefore the depth is more than 0
-			int depth = ((input.getMaxOccurs().compareTo(BigInteger.valueOf(1))==1) ? 1 : 0);
-			
+			// if compareTo returns 1 then first value is greater than 1. it
+			// means that there is more than one occurrence therefore the depth
+			// is more than 0
+			int depth = ((input.getMaxOccurs().compareTo(BigInteger.valueOf(1)) == 1) ? 1 : 0);
+
 			inputPorts.put(input.getIdentifier().getStringValue(), depth);
 		}
-		
+
 		return inputPorts;
-		
+
 	}
 
 	@Override
 	public HashMap<String, Integer> getProcessOutputPorts(String processID) {
 		HashMap<String, Integer> outputPorts = new HashMap<String, Integer>();
-		
+
 		ProcessDescriptionType processDescription = null;
-		
+
 		try {
 			processDescription = wpsClient.getProcessDescription(serviceURI.toString(), processID);
 		} catch (IOException ex) {
 			logger.error("Failed to list processe output port for process: " + processID, ex);
 		}
 
-		if (processDescription==null)
+		if (processDescription == null)
 			return outputPorts;
-		
+
 		OutputDescriptionType[] outputList = processDescription.getProcessOutputs().getOutputArray();
 
 		for (OutputDescriptionType output : outputList) {
 
 			// TODO: Calculate output depth
 			int depth = 0;
-			
+
 			outputPorts.put(output.getIdentifier().getStringValue(), depth);
 		}
-		
+
 		return outputPorts;
 	}
-	
-	public List<PortTypeDescriptor> getTaverna2InputPorts(String processID)
-	{
-        
-		List<PortTypeDescriptor> inputPorts = new ArrayList<PortTypeDescriptor>();
-		
+
+	public List<IPortDataDescriptor> getTaverna2InputPorts(String processID) {
+
+		List<IPortDataDescriptor> inputPorts = new ArrayList<IPortDataDescriptor>();
+
 		ProcessDescriptionType processDescription = null;
-		
+
 		try {
 			processDescription = wpsClient.getProcessDescription(serviceURI.toString(), processID);
 		} catch (IOException ex) {
 			logger.error("Failed to get process description for process: " + processID, ex);
 		}
 
-		if (processDescription==null)
+		if (processDescription == null)
 			return inputPorts;
-		
+
 		DataInputs dataInputs = processDescription.getDataInputs();
-		
+
 		if (dataInputs == null)
 			return inputPorts;
-					
+
 		InputDescriptionType[] inputList = dataInputs.getInputArray();
 
 		for (InputDescriptionType input : inputList) {
-			PortTypeDescriptor myNewInputPort = new PortTypeDescriptor();
-			
-			myNewInputPort.setName(input.getIdentifier().getStringValue());
-			myNewInputPort.setDepth(getInputPortDepth(input));
-			myNewInputPort.setAllowLiteralValues(true);
-			myNewInputPort.setHandledReferenceSchemes(null); // is not used in Taverna
-			myNewInputPort.setTranslatedElementType(String.class);
-			myNewInputPort.setPortDataType(getPortDataType(input));
-			myNewInputPort.setRequired(input.getMinOccurs().compareTo(BigInteger.valueOf(1))>0?true:false);
-			myNewInputPort.setSupportedComplexFormats(getInputPortSupportedComplexFormats(input));
-			myNewInputPort.setDefaultComplexFormat(getInputPortDefaultComplexFormat(input));
-			myNewInputPort.setSupportedBoundingBoxFormats(getInputPortSupportedBoundingBoxFormats(input));
-			myNewInputPort.setDefaultBoundingBoxFormat(getInputPortDefaultBoundingBoxFormats(input));
-			
+			IPortDataDescriptor myNewInputPort = PortDataDescriptorFactory.getInstance().getPortDataDescriptor(input);
+
 			inputPorts.add(myNewInputPort);
 		}
-	
+
 		return inputPorts;
 	}
 
 	@Override
-	public List<PortTypeDescriptor> getTaverna2OutputPorts(String processID) {
-		List<PortTypeDescriptor> outputPorts = new ArrayList<PortTypeDescriptor>();
+	public List<IPortDataDescriptor> getTaverna2OutputPorts(String processID) {
+		List<IPortDataDescriptor> outputPorts = new ArrayList<IPortDataDescriptor>();
 
 		ProcessDescriptionType processDescription = null;
 
@@ -205,18 +197,7 @@ public class GisClientNorthImpl implements IGisClient {
 		OutputDescriptionType[] outputList = processDescription.getProcessOutputs().getOutputArray();
 
 		for (OutputDescriptionType output : outputList) {
-			PortTypeDescriptor myNewOutputPort = new PortTypeDescriptor();
-
-			myNewOutputPort.setName(output.getIdentifier().getStringValue());
-			myNewOutputPort.setDepth(0); // output port depth is always 1
-			
-			myNewOutputPort.setPortDataType(getPortDataType(output));
-			myNewOutputPort.setRequired(false);
-			myNewOutputPort.setSupportedComplexFormats(getOutputPortSupportedComplexFormats(output));
-			myNewOutputPort.setDefaultComplexFormat(getOutputPortDefaultComplexFormat(output));
-			myNewOutputPort.setSupportedBoundingBoxFormats(getOutputPortSupportedBoundingBoxFormats(output));
-			myNewOutputPort.setDefaultBoundingBoxFormat(getOutputPortDefaultBoundingBoxFormats(output));
-			
+			IPortDataDescriptor myNewOutputPort = PortDataDescriptorFactory.getInstance().getPortDataDescriptor(output);
 			outputPorts.add(myNewOutputPort);
 		}
 
@@ -228,229 +209,160 @@ public class GisClientNorthImpl implements IGisClient {
 		List<String> results = new ArrayList<String>();
 
 		WPSCapabilitiesType wpsCapabilities = wpsClient.getWPSCaps(serviceURI.toString()).getCapabilities();
-		
+
 		ProcessBriefType[] processList = wpsCapabilities.getProcessOfferings().getProcessArray();
-		
-		for( ProcessBriefType process: processList)
-		{
+
+		for (ProcessBriefType process : processList) {
 			results.add(process.getIdentifier().getStringValue());
 		}
-		
+
 		return results;
-		
-	}
-
-	private PortDataType getPortDataType(InputDescriptionType inputPort)
-	{
-		// set default dataType to literal data
-		PortDataType portDataType = PortDataType.LITERAL_DATA;
-		
-		if (inputPort.getLiteralData()!=null)
-			return portDataType;
-		
-		if(inputPort.getComplexData()!=null)
-			return PortDataType.COMPLEX_DATA;
-		
-		if(inputPort.getBoundingBoxData()!=null)
-			return PortDataType.BOUNDING_BOX_DATA;
-		
-		return portDataType;
-		
-	}
-	
-	private PortDataType getPortDataType(OutputDescriptionType outputPort)
-	{
-		// set default dataType to literal data
-		PortDataType portDataType = PortDataType.LITERAL_DATA;
-		
-		if (outputPort.getLiteralOutput()!=null)
-			return portDataType;
-		
-		if(outputPort.getComplexOutput()!=null)
-			return PortDataType.COMPLEX_DATA;
-		
-		if(outputPort.getBoundingBoxOutput()!=null)
-			return PortDataType.BOUNDING_BOX_DATA;
-		
-		return portDataType;
-		
-	}
-	
-	/**
-	 * @param input port
-	 * @return List of supported formats
-	 */
-	private List<ComplexDataTypeDescriptor> getInputPortSupportedComplexFormats(InputDescriptionType inputPort)
-	{
-		List<ComplexDataTypeDescriptor> supportedComplexFormats = new ArrayList<ComplexDataTypeDescriptor>();
-		
-		if (inputPort.getComplexData()==null)
-			return supportedComplexFormats;
-		else
-		{
-			ComplexDataCombinationsType complexDataSupportedTypes = inputPort.getComplexData().getSupported();
-			
-			if (complexDataSupportedTypes.sizeOfFormatArray()==0)
-				return supportedComplexFormats;
-			
-			for(ComplexDataDescriptionType format : complexDataSupportedTypes.getFormatArray())
-			{
-				supportedComplexFormats.add(new ComplexDataTypeDescriptor(format.getMimeType(),format.getEncoding(), format.getSchema()));
-			}
-		}
-		
-		return supportedComplexFormats;
-	}
-	
-	private ComplexDataTypeDescriptor getInputPortDefaultComplexFormat(InputDescriptionType inputPort)
-	{
-		ComplexDataTypeDescriptor defaultFormat = null;
-		
-		if (inputPort.getComplexData()==null)
-			if (inputPort.getComplexData().getDefault()!=null)
-				if(inputPort.getComplexData().getDefault().getFormat()!=null)
-				{
-					ComplexDataDescriptionType outputDefaultFormat = inputPort.getComplexData().getDefault().getFormat();
-					defaultFormat = new ComplexDataTypeDescriptor(outputDefaultFormat.getMimeType(),outputDefaultFormat.getEncoding(),outputDefaultFormat.getSchema());
-				}
-					
-		return defaultFormat;
-		
-	}
-	
-	private List<String> getInputPortSupportedBoundingBoxFormats(InputDescriptionType inputPort)
-	{
-		List<String> supportedBoundingBoxFormats = new ArrayList<String>();
-		
-		if (inputPort.getBoundingBoxData()==null)
-			return supportedBoundingBoxFormats;
-		else
-		{
-			CRSsType boundingBoxDataSupportedTypes = inputPort.getBoundingBoxData().getSupported();
-			
-			if (boundingBoxDataSupportedTypes.sizeOfCRSArray()==0)
-				return supportedBoundingBoxFormats;
-			
-			for(String format : boundingBoxDataSupportedTypes.getCRSArray())
-			{
-				supportedBoundingBoxFormats.add(format);
-			}
-			
-		}
-		
-		return supportedBoundingBoxFormats;
 
 	}
-	
-	private String getInputPortDefaultBoundingBoxFormats(InputDescriptionType inputPort)
-	{
-		String defaultFormat = null;
-		
-		if (inputPort.getBoundingBoxData()==null)
-			if (inputPort.getBoundingBoxData().getDefault()!=null)
-				if(inputPort.getBoundingBoxData().getDefault().getCRS()!=null)
-				{
-					defaultFormat = inputPort.getBoundingBoxData().getDefault().getCRS();
-				}
-					
-		return defaultFormat;
-		
-	}
-	
-	/**
-	 * @param input port
-	 * @return List of supported formats
-	 */
-	private List<ComplexDataTypeDescriptor> getOutputPortSupportedComplexFormats(OutputDescriptionType outputPort)
-	{
-		List<ComplexDataTypeDescriptor> supportedComplexFormats = new ArrayList<ComplexDataTypeDescriptor>();
-		
-		if (outputPort.getComplexOutput()==null)
-			return supportedComplexFormats;
-		else
-		{
-			ComplexDataCombinationsType complexDataSupportedTypes = outputPort.getComplexOutput().getSupported();
-			
-			if (complexDataSupportedTypes.sizeOfFormatArray()==0)
-				return supportedComplexFormats;
-			
-			for(ComplexDataDescriptionType format : complexDataSupportedTypes.getFormatArray())
-			{
-				supportedComplexFormats.add(new ComplexDataTypeDescriptor(format.getMimeType(),format.getEncoding(), format.getSchema()));
-			}
-		}
-		
-		return supportedComplexFormats;
-	}
-	
-	private ComplexDataTypeDescriptor getOutputPortDefaultComplexFormat(OutputDescriptionType outputPort)
-	{
-		ComplexDataTypeDescriptor defaultFormat = null;
-		
-		if (outputPort.getComplexOutput()==null)
-			if (outputPort.getComplexOutput().getDefault()!=null)
-				if(outputPort.getComplexOutput().getDefault().getFormat()!=null)
-				{
-					ComplexDataDescriptionType outputDefaultFormat = outputPort.getComplexOutput().getDefault().getFormat();
-					defaultFormat = new ComplexDataTypeDescriptor(outputDefaultFormat.getMimeType(),outputDefaultFormat.getEncoding(),outputDefaultFormat.getSchema());
-				}
-					
-		return defaultFormat;
-		
-	}
-	
-	private List<String> getOutputPortSupportedBoundingBoxFormats(OutputDescriptionType outputPort)
-	{
-		List<String> supportedBoundingBoxFormats = new ArrayList<String>();
-		
-		if (outputPort.getBoundingBoxOutput()==null)
-			return supportedBoundingBoxFormats;
-		else
-		{
-			CRSsType boundingBoxDataSupportedTypes = outputPort.getBoundingBoxOutput().getSupported();
-			
-			if (boundingBoxDataSupportedTypes.sizeOfCRSArray()==0)
-				return supportedBoundingBoxFormats;
-			
-			for(String format : boundingBoxDataSupportedTypes.getCRSArray())
-			{
-				supportedBoundingBoxFormats.add(format);
-			}
-			
-		}
-		
-		return supportedBoundingBoxFormats;
 
-	}
-	
-	private String getOutputPortDefaultBoundingBoxFormats(OutputDescriptionType outputPort)
-	{
-		String defaultFormat = null;
-		
-		if (outputPort.getBoundingBoxOutput()==null)
-			if (outputPort.getBoundingBoxOutput().getDefault()!=null)
-				if(outputPort.getBoundingBoxOutput().getDefault().getCRS()!=null)
-				{
-					defaultFormat = outputPort.getBoundingBoxOutput().getDefault().getCRS();
+	@Override
+	public HashMap<String, String> executeProcess(String processID, HashMap<String, IPortDataDescriptor> inputs)
+			throws Exception {
+
+		HashMap<String, String> executeOutput = new HashMap<String, String>();
+
+		ProcessDescriptionType processDescription = null;
+
+		// Get process description
+		try {
+			processDescription = wpsClient.getProcessDescription(serviceURI.toString(), processID);
+		} catch (IOException ex) {
+			throw new Exception("Failed to get process description for process: " + processID, ex);
+		}
+
+		// Initialise execute builder
+		ExecuteRequestBuilder executeBuilder = new ExecuteRequestBuilder(processDescription);
+
+		boolean hasInput = true;
+
+		DataInputs dataInputs = processDescription.getDataInputs();
+
+		if (dataInputs == null)
+			hasInput = false;
+
+		if (hasInput) {
+
+			InputDescriptionType[] inputList = dataInputs.getInputArray();
+
+			// TODO: Handle input when depth > 0
+			// Provide user values for each service input
+			for (InputDescriptionType input : inputList) {
+				String inputName = input.getIdentifier().getStringValue();
+				Object inputValue = inputs.containsKey(inputName)?inputs.get(inputName).getValue():null;
+
+				// Check if input is required but not provided
+				if (inputValue == null && input.getMinOccurs().intValue() > 0) {
+					throw new IOException("Required Input not set: " + inputName);
 				}
-					
-		return defaultFormat;
-		
-	}
+
+				// Skip not user supplied optional inputs
+				if (inputValue!=null)
+				{
+					if (input.getLiteralData() != null) {
+						if (inputValue instanceof String) {
+							executeBuilder.addLiteralData(inputName, (String) inputValue);
+						}
 	
-	/**
-	 * @param inputPort
-	 * @return
-	 */
-	private int getInputPortDepth(InputDescriptionType inputPort)
-	{
-		// The input has cardinality (Min/Max Occurs) of 1 when it returns 1 value and greater than 1  when it 
-		// returns multiple values 
-		// if compareTo returns 1 then first value (MaxOccurs) is greater than 1. it means that there is more than one occurrence 
-		// therefore the depth is greater than 0
-		int depth = ((inputPort.getMaxOccurs().compareTo(BigInteger.valueOf(1))==1) ? 1 : 0);
-		
-		return depth;
-	}
+					} else if (input.getComplexData() != null) {
 	
+						// Check if the selected format (mimeType, encoding, schema)
+						// is supported by the service
+						ComplexPortDataDescriptor complexData = (ComplexPortDataDescriptor) inputs.get(inputName);
+						ComplexDataFormat selectedFormat = complexData.getComplexFormat();
+	
+						if (!complexData.getSupportedComplexFormats().contains(selectedFormat)) {
+							throw new IllegalArgumentException(
+									"Unsupported format: " + complexData.getComplexFormat().toString());
+						}
+	
+						if (inputValue instanceof String) {
+							// Check if complex data is provided by reference or by
+							// value
+							boolean isReference = true;
+	
+							try {
+								URI.create((String) inputValue);
+							} catch (IllegalArgumentException ex) {
+								isReference = false;
+							}
+	
+							if (isReference) {
+								// complex data by reference
+								executeBuilder.addComplexDataReference(inputName, (String) inputValue,
+										selectedFormat.getSchema(), selectedFormat.getEncoding(),
+										selectedFormat.getMimeType());
+							} else {
+	
+								// complex data by value
+								try {
+	
+									executeBuilder.addComplexData(inputName, (String) inputValue,
+											selectedFormat.getSchema(), selectedFormat.getEncoding(),
+											selectedFormat.getMimeType());
+	
+								} catch (WPSClientException e) {
+									throw new Exception("Failed to set complex data: " + processID, e);
+								}
+							}
+						}
+					} else if (input.getBoundingBoxData() != null) {
+						// TODO: Handle BBox data
+					}
+				}
+				
+
+			} // End input loop
+
+		}
+		ExecuteDocument execute = executeBuilder.getExecute();
+
+		execute.getExecute().setService("WPS");
+
+		Object responseObject = null;
+
+		try {
+			// Execute service
+			responseObject = wpsClient.execute(serviceURI.toString(), execute);
+		} catch (WPSClientException e) {
+			throw new Exception(e.getServerException().xmlText());
+		}
+
+		// Register outputs
+		if (responseObject instanceof ExecuteResponseDocument) {
+			ExecuteResponseDocument response = (ExecuteResponseDocument) responseObject;
+
+			// analyser is used to get complex data
+			ExecuteResponseAnalyser analyser = new ExecuteResponseAnalyser(execute, response, processDescription);
+
+			for (OutputDataType output : response.getExecuteResponse().getProcessOutputs().getOutputArray()) {
+				DataType data = output.getData();
+
+				if (data.isSetLiteralData()) {
+
+					// simpleRef =
+					// referenceService.register(data.getLiteralData().getStringValue(),
+					// 0, true, context);
+
+					executeOutput.put(output.getIdentifier().getStringValue(), data.getLiteralData().getStringValue());
+				} else {
+
+					// simpleRef =
+					// referenceService.register(data.getComplexData().toString(),
+					// 0, true, context);
+
+					executeOutput.put(output.getIdentifier().getStringValue(), data.getComplexData().toString());
+
+				}
+
+			}
+
+		}
+
+		return executeOutput;
+	}
 }

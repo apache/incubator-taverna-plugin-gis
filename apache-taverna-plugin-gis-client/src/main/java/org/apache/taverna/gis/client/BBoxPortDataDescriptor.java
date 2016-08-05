@@ -2,73 +2,75 @@ package org.apache.taverna.gis.client;
 
 import java.util.List;
 
-public class PortTypeDescriptor {
+public class BBoxPortDataDescriptor implements IPortDataDescriptor {
 	private String name;
+	private Object value; // TODO: should the value be a property of the TypeDescriptor? 
 	private Integer depth;
 	private boolean allowLiteralValues;
-	private String handledReferenceSchemes;
+	private Object handledReferenceSchemes;
 	private Class<?> translatedElementType;
-	private PortDataType portDataType;
 	private boolean isRequired;
-	private List<ComplexDataTypeDescriptor> supportedComplexFormats;
-	private ComplexDataTypeDescriptor defaultComplexFormat;
 	private List<String> supportedBoundingBoxFormats;
 	private String defaultBoundingBoxFormat;
+	private String boundingBoxFormat;
 	
+	@Override
 	public String getName() {
 		return name;
 	}
+	@Override
 	public void setName(String name) {
 		this.name = name;
 	}
+	@Override
+	public Object getValue() {
+		return value;
+	}
+	@Override
+	public void setValue(Object value) {
+		this.value = value;
+	}
+	@Override
 	public Integer getDepth() {
 		return depth;
 	}
+	@Override
 	public void setDepth(Integer depth) {
 		this.depth = depth;
 	}
+	@Override
 	public boolean isAllowLiteralValues() {
 		return allowLiteralValues;
 	}
+	@Override
 	public void setAllowLiteralValues(boolean allowLiteralValues) {
 		this.allowLiteralValues = allowLiteralValues;
 	}
-	public String getHandledReferenceSchemes() {
+	@Override
+	public Object getHandledReferenceSchemes() {
 		return handledReferenceSchemes;
 	}
-	public void setHandledReferenceSchemes(String handledReferenceSchemes) {
+	@Override
+	public void setHandledReferenceSchemes(Object handledReferenceSchemes) {
 		this.handledReferenceSchemes = handledReferenceSchemes;
 	}
+	@Override
 	public Class<?> getTranslatedElementType() {
 		return translatedElementType;
 	}
+	@Override
 	public void setTranslatedElementType(Class<?> translatedElementType) {
 		this.translatedElementType = translatedElementType;
 	}
-	public PortDataType getPortDataType() {
-		return portDataType;
-	}
-	public void setPortDataType(PortDataType portDataType) {
-		this.portDataType = portDataType;
-	}
+	@Override
 	public boolean isRequired() {
 		return isRequired;
 	}
+	@Override
 	public void setRequired(boolean isRequired) {
 		this.isRequired = isRequired;
 	}
-	public List<ComplexDataTypeDescriptor> getSupportedComplexFormats() {
-		return supportedComplexFormats;
-	}
-	public void setSupportedComplexFormats(List<ComplexDataTypeDescriptor> supportedComplexFormats) {
-		this.supportedComplexFormats = supportedComplexFormats;
-	}
-	public ComplexDataTypeDescriptor getDefaultComplexFormat() {
-		return defaultComplexFormat;
-	}
-	public void setDefaultComplexFormat(ComplexDataTypeDescriptor defaultComplexFormat) {
-		this.defaultComplexFormat = defaultComplexFormat;
-	}
+	
 	public List<String> getSupportedBoundingBoxFormats() {
 		return supportedBoundingBoxFormats;
 	}
@@ -81,5 +83,10 @@ public class PortTypeDescriptor {
 	public void setDefaultBoundingBoxFormat(String defaultBoundingBoxFormat) {
 		this.defaultBoundingBoxFormat = defaultBoundingBoxFormat;
 	}
-	
+	public String getBoundingBoxFormat() {
+		return boundingBoxFormat;
+	}
+	public void setBoundingBoxFormat(String boundingBoxFormat) {
+		this.boundingBoxFormat = boundingBoxFormat;
+	}
 }
