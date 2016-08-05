@@ -2,7 +2,7 @@ package org.apache.taverna.gis.client;
 
 import java.util.List;
 
-public class BBoxPortDataTypeDescriptor implements IPortDataDescriptor {
+public class BBoxPortDataDescriptor implements IPortDataDescriptor {
 	private String name;
 	private Object value; // TODO: should the value be a property of the TypeDescriptor? 
 	private Integer depth;
