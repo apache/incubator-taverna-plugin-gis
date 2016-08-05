@@ -10,9 +10,9 @@ public class ComplexPortDataDescriptor implements IPortDataDescriptor {
 	private Object handledReferenceSchemes;
 	private Class<?> translatedElementType;
 	private boolean isRequired;
-	private List<ComplexDataTypeDescriptor> supportedComplexFormats;
-	private ComplexDataTypeDescriptor defaultComplexFormat;
-	private ComplexDataTypeDescriptor complexFormat;
+	private List<ComplexDataFormat> supportedComplexFormats;
+	private ComplexDataFormat defaultComplexFormat;
+	private ComplexDataFormat complexFormat;
 	
 	@Override
 	public String getName() {
@@ -71,22 +71,22 @@ public class ComplexPortDataDescriptor implements IPortDataDescriptor {
 		this.isRequired = isRequired;
 	}
 	
-	public List<ComplexDataTypeDescriptor> getSupportedComplexFormats() {
+	public List<ComplexDataFormat> getSupportedComplexFormats() {
 		return supportedComplexFormats;
 	}
-	public void setSupportedComplexFormats(List<ComplexDataTypeDescriptor> supportedComplexFormats) {
+	public void setSupportedComplexFormats(List<ComplexDataFormat> supportedComplexFormats) {
 		this.supportedComplexFormats = supportedComplexFormats;
 	}
-	public ComplexDataTypeDescriptor getDefaultComplexFormat() {
+	public ComplexDataFormat getDefaultComplexFormat() {
 		return defaultComplexFormat;
 	}
-	public void setDefaultComplexFormat(ComplexDataTypeDescriptor defaultComplexFormat) {
+	public void setDefaultComplexFormat(ComplexDataFormat defaultComplexFormat) {
 		this.defaultComplexFormat = defaultComplexFormat;
 	}
-	public ComplexDataTypeDescriptor getComplexFormat() {
+	public ComplexDataFormat getComplexFormat() {
 		return complexFormat;
 	}
-	public void setComplexFormat(ComplexDataTypeDescriptor complexFormat) {
+	public void setComplexFormat(ComplexDataFormat complexFormat) {
 		this.complexFormat = complexFormat;
 	}
 	
