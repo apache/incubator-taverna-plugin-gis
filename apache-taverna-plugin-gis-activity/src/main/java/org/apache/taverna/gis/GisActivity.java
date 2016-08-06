@@ -109,7 +109,7 @@ public class GisActivity extends AbstractAsynchronousActivity<GisActivityConfigu
 								ComplexDataFormat complexFormat = new ComplexDataFormat();
 								
 								complexFormat.setEncoding(null);
-								complexFormat.setMimeType("application/wkt");
+								//complexFormat.setMimeType("application/wkt");
 								complexFormat.setSchema(null);
 								
 								((ComplexPortDataDescriptor) activityInputPort).setComplexFormat(complexFormat);
@@ -120,8 +120,30 @@ public class GisActivity extends AbstractAsynchronousActivity<GisActivityConfigu
 						
 					}
 					
+					HashMap<String, IPortDataDescriptor> serviceOutputs = new HashMap<String, IPortDataDescriptor>();
+					
+					for (IPortDataDescriptor activityOutputPort : configBean.getOutputPortDefinitions()) 
+					{
+						if (activityOutputPort instanceof ComplexPortDataDescriptor)
+						{
+							//TODO: set format
+							ComplexDataFormat complexFormat = new ComplexDataFormat();
+							
+							complexFormat.setEncoding(null);
+							//complexFormat.setMimeType("application/wkt");
+							//complexFormat.setMimeType("text/plain");
+							complexFormat.setSchema(null);
+							
+							((ComplexPortDataDescriptor) activityOutputPort).setComplexFormat(complexFormat);
+						}
+						
+						serviceOutputs.put(activityOutputPort.getName(), activityOutputPort);
+						
+					}
+					
 					// Execute process
-					HashMap<String, String> serviceOutput = gisClient.executeProcess(configBean.getProcessIdentifier().toString(), serviceInputs);
+					HashMap<String, String> serviceOutput = gisClient.executeProcess(
+							configBean.getProcessIdentifier().toString(), serviceInputs, serviceOutputs);
 					
 					outputs = new HashMap<String, T2Reference>();
 					T2Reference simpleRef = null;
@@ -134,59 +156,6 @@ public class GisActivity extends AbstractAsynchronousActivity<GisActivityConfigu
 						outputs.put(key, simpleRef);
 					    
 					}
-					
-//						
-//					
-//					Object responseObject = null;
-//					
-//					try {
-//						// execute service
-//						responseObject = wpsClient.execute(configBean.getOgcServiceUri().toString(), execute);
-//					} catch (WPSClientException e) {
-//						// if the an error return from service
-//						callback.fail(e.getServerException().xmlText());
-//					}
-//
-//					// Register outputs
-//					outputs = new HashMap<String, T2Reference>();
-//					T2Reference simpleRef = null;
-//					
-//					if (responseObject instanceof ExecuteResponseDocument) {
-//			            ExecuteResponseDocument response = (ExecuteResponseDocument) responseObject;
-//			            
-//			            // analyser is used to get complex data
-//			            ExecuteResponseAnalyser analyser = new ExecuteResponseAnalyser(
-//			                    execute, response, processDescription);
-//			            
-//			            for(OutputDataType output : response.getExecuteResponse().getProcessOutputs().getOutputArray())
-//						{
-//			            	DataType data = output.getData();
-//			            	
-//			            	if (data.isSetLiteralData())
-//							{
-//			            		simpleRef = referenceService.register(data.getLiteralData().getStringValue(), 0, true, context);
-//
-//								outputs.put(output.getIdentifier().getStringValue(), simpleRef);
-//							}
-//			            	else
-//			            	{
-//			            	
-//			            		simpleRef = referenceService.register(data.getComplexData().toString(), 0, true, context);
-//			            		
-//			            		outputs.put(output.getIdentifier().getStringValue(), simpleRef);
-//			            		
-//			            	}
-//			            	
-//						}
-//			            
-//			        }
-//					
-//					
-//				} catch (WPSClientException e) {
-//					callback.fail(e.getMessage());
-//				} catch (IOException e) {
-//					callback.fail(e.getMessage());
-//				}
 					
 				} catch (Exception e) {
 					logger.error("Error executing service/process: "
