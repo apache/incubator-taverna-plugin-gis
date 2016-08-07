@@ -47,7 +47,15 @@ public interface IGisClient {
 	
 	public List<IPortDataDescriptor> getTaverna2OutputPorts(String processID);
 	
-	public HashMap<String, String> executeProcess(String processID, HashMap<String, IPortDataDescriptor> inputs) 
-			throws Exception;
+	
+	/**
+	 * @param processID - Identifier of the process 
+	 * @param inputs - Map of input names and input objects
+	 * @param outputs - Map of output names and output objects
+	 * @return Return a map of port names and port values
+	 * @throws Exception
+	 */
+	public HashMap<String, String> executeProcess(String processID, HashMap<String, IPortDataDescriptor> inputs,
+			HashMap<String, IPortDataDescriptor> outputs) throws Exception;
 	
 }

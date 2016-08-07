@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.apache.taverna.gis.client.BBoxPortDataDescriptor;
 import org.apache.taverna.gis.client.ComplexDataFormat;
 import org.apache.taverna.gis.client.ComplexPortDataDescriptor;
 import org.apache.taverna.gis.client.IGisClient;
@@ -39,6 +40,7 @@ import org.n52.wps.client.WPSClientException;
 import org.n52.wps.client.WPSClientSession;
 
 import net.opengis.ows.x11.LanguageStringType;
+import net.opengis.ows.x11.impl.ExceptionReportDocumentImpl;
 import net.opengis.wps.x100.CapabilitiesDocument;
 import net.opengis.wps.x100.DataType;
 import net.opengis.wps.x100.InputDescriptionType;
@@ -47,6 +49,7 @@ import net.opengis.wps.x100.OutputDescriptionType;
 import net.opengis.wps.x100.ProcessBriefType;
 import net.opengis.wps.x100.ProcessDescriptionType;
 import net.opengis.wps.x100.ProcessDescriptionType.DataInputs;
+import net.opengis.wps.x100.ProcessDescriptionType.ProcessOutputs;
 import net.opengis.wps.x100.WPSCapabilitiesType;
 import net.opengis.wps.x100.ExecuteDocument;
 import net.opengis.wps.x100.ExecuteResponseDocument;
@@ -194,6 +197,7 @@ public class GisClientNorthImpl implements IGisClient {
 		if (processDescription == null)
 			return outputPorts;
 
+		// TODO: Check if there is no output port (It should have at least one port?)
 		OutputDescriptionType[] outputList = processDescription.getProcessOutputs().getOutputArray();
 
 		for (OutputDescriptionType output : outputList) {
@@ -220,12 +224,16 @@ public class GisClientNorthImpl implements IGisClient {
 
 	}
 
+	/* (non-Javadoc)
+	 * @see org.apache.taverna.gis.client.IGisClient#executeProcess(java.lang.String, java.util.HashMap, java.util.HashMap)
+	 */
 	@Override
-	public HashMap<String, String> executeProcess(String processID, HashMap<String, IPortDataDescriptor> inputs)
+	public HashMap<String, String> executeProcess(String processID, 
+			HashMap<String, IPortDataDescriptor> inputs, HashMap<String, IPortDataDescriptor> outputs)
 			throws Exception {
 
-		HashMap<String, String> executeOutput = new HashMap<String, String>();
-
+		// The execution will return a map of port names and port values
+		HashMap<String, String> executeOutput = null;
 		ProcessDescriptionType processDescription = null;
 
 		// Get process description
@@ -238,87 +246,12 @@ public class GisClientNorthImpl implements IGisClient {
 		// Initialise execute builder
 		ExecuteRequestBuilder executeBuilder = new ExecuteRequestBuilder(processDescription);
 
-		boolean hasInput = true;
-
-		DataInputs dataInputs = processDescription.getDataInputs();
-
-		if (dataInputs == null)
-			hasInput = false;
-
-		if (hasInput) {
-
-			InputDescriptionType[] inputList = dataInputs.getInputArray();
-
-			// TODO: Handle input when depth > 0
-			// Provide user values for each service input
-			for (InputDescriptionType input : inputList) {
-				String inputName = input.getIdentifier().getStringValue();
-				Object inputValue = inputs.containsKey(inputName)?inputs.get(inputName).getValue():null;
-
-				// Check if input is required but not provided
-				if (inputValue == null && input.getMinOccurs().intValue() > 0) {
-					throw new IOException("Required Input not set: " + inputName);
-				}
-
-				// Skip not user supplied optional inputs
-				if (inputValue!=null)
-				{
-					if (input.getLiteralData() != null) {
-						if (inputValue instanceof String) {
-							executeBuilder.addLiteralData(inputName, (String) inputValue);
-						}
-	
-					} else if (input.getComplexData() != null) {
-	
-						// Check if the selected format (mimeType, encoding, schema)
-						// is supported by the service
-						ComplexPortDataDescriptor complexData = (ComplexPortDataDescriptor) inputs.get(inputName);
-						ComplexDataFormat selectedFormat = complexData.getComplexFormat();
-	
-						if (!complexData.getSupportedComplexFormats().contains(selectedFormat)) {
-							throw new IllegalArgumentException(
-									"Unsupported format: " + complexData.getComplexFormat().toString());
-						}
-	
-						if (inputValue instanceof String) {
-							// Check if complex data is provided by reference or by
-							// value
-							boolean isReference = true;
-	
-							try {
-								URI.create((String) inputValue);
-							} catch (IllegalArgumentException ex) {
-								isReference = false;
-							}
-	
-							if (isReference) {
-								// complex data by reference
-								executeBuilder.addComplexDataReference(inputName, (String) inputValue,
-										selectedFormat.getSchema(), selectedFormat.getEncoding(),
-										selectedFormat.getMimeType());
-							} else {
-	
-								// complex data by value
-								try {
-	
-									executeBuilder.addComplexData(inputName, (String) inputValue,
-											selectedFormat.getSchema(), selectedFormat.getEncoding(),
-											selectedFormat.getMimeType());
-	
-								} catch (WPSClientException e) {
-									throw new Exception("Failed to set complex data: " + processID, e);
-								}
-							}
-						}
-					} else if (input.getBoundingBoxData() != null) {
-						// TODO: Handle BBox data
-					}
-				}
-				
-
-			} // End input loop
-
-		}
+		// Add inputs to the execute builder
+		prepareExecuteBuilderInput(processID, inputs, processDescription, executeBuilder);
+		
+		// Add outputs to the execute builder 
+		prepareExecuteBuilderOutput(processID, outputs, processDescription, executeBuilder);
+		
 		ExecuteDocument execute = executeBuilder.getExecute();
 
 		execute.getExecute().setService("WPS");
@@ -329,40 +262,233 @@ public class GisClientNorthImpl implements IGisClient {
 			// Execute service
 			responseObject = wpsClient.execute(serviceURI.toString(), execute);
 		} catch (WPSClientException e) {
-			throw new Exception(e.getServerException().xmlText());
+			throw new Exception(e.getServerException().xmlText(),e);
 		}
 
-		// Register outputs
+		// Get outputs
+		executeOutput = getResponseOutput(processDescription, execute, responseObject);
+
+		return executeOutput;
+	}
+
+	private HashMap<String, String> getResponseOutput(ProcessDescriptionType processDescription,
+			ExecuteDocument execute, Object responseObject) throws Exception {
+		
+		HashMap<String, String> executeOutput = new HashMap<String, String>();
+		
 		if (responseObject instanceof ExecuteResponseDocument) {
 			ExecuteResponseDocument response = (ExecuteResponseDocument) responseObject;
 
 			// analyser is used to get complex data
 			ExecuteResponseAnalyser analyser = new ExecuteResponseAnalyser(execute, response, processDescription);
-
+			
 			for (OutputDataType output : response.getExecuteResponse().getProcessOutputs().getOutputArray()) {
 				DataType data = output.getData();
-
-				if (data.isSetLiteralData()) {
-
-					// simpleRef =
-					// referenceService.register(data.getLiteralData().getStringValue(),
-					// 0, true, context);
-
-					executeOutput.put(output.getIdentifier().getStringValue(), data.getLiteralData().getStringValue());
-				} else {
-
-					// simpleRef =
-					// referenceService.register(data.getComplexData().toString(),
-					// 0, true, context);
-
-					executeOutput.put(output.getIdentifier().getStringValue(), data.getComplexData().toString());
-
+				
+				if (output.isSetReference())
+				{
+					// output by reference 
+					executeOutput.put(output.getIdentifier().getStringValue(), output.getReference().getHref());
+				} 
+				else if (output.isSetData())
+				{
+					if (data.isSetLiteralData()) 
+					{
+						executeOutput.put(output.getIdentifier().getStringValue(), data.getLiteralData().getStringValue());
+					} 
+					else if (data.isSetComplexData()) 
+					{
+						executeOutput.put(output.getIdentifier().getStringValue(), data.getComplexData().toString());
+					} 
+					else if (data.isSetBoundingBoxData())
+					{
+						//TODO: Handle bounding box data
+					}
 				}
+			}
+		}
+		else if (responseObject instanceof ExceptionReportDocumentImpl)
+		{
+			throw new Exception("Error: " + ((ExceptionReportDocumentImpl)responseObject).getExceptionReport());
+		}
+		
+		return executeOutput;
+		
+	}
 
+	private InputDescriptionType[] getProcessInputs(ProcessDescriptionType processDescription)
+	{
+		InputDescriptionType[] result  = {};
+	
+		DataInputs dataInputs = processDescription.getDataInputs();
+
+		if (dataInputs == null)
+			return result;
+
+		result = dataInputs.getInputArray();
+		
+		return result;
+		
+	}
+	
+	private OutputDescriptionType[] getProcessOutputs(ProcessDescriptionType processDescription)
+	{
+		OutputDescriptionType[] result  = {};
+	
+		ProcessOutputs dataOutputs = processDescription.getProcessOutputs();
+
+		if (dataOutputs == null)
+			return result;
+
+		result = dataOutputs.getOutputArray();
+		
+		return result;
+		
+	}
+
+	private ComplexDataFormat checkComplexDataSupportedFormats(ComplexPortDataDescriptor complexPort)
+	{
+		// Check if the selected format (mimeType, encoding, schema)
+		// is supported by the service
+		ComplexDataFormat selectedFormat = complexPort.getComplexFormat();
+
+		// TODO: Check if contains should not be case sensitive
+		if (!complexPort.getSupportedComplexFormats().contains(selectedFormat)) 
+		{
+			logger.warn("Provided format not supported.");
+
+			// TODO: Should throw exception or set to default?
+			ComplexDataFormat defaultFormat = complexPort.getDefaultComplexFormat();
+			if (defaultFormat==null)
+			{
+//				throw new IllegalArgumentException(
+//						"Unsupported format: MimeType=" + selectedFormat.getMimeType() + " Schema=" 
+//								+ selectedFormat.getSchema() + " Encoding=" + selectedFormat.getEncoding());
+				
+				defaultFormat = new ComplexDataFormat(null,null,null);
+				
+			}
+			
+			selectedFormat = defaultFormat;
+			
+		}
+		
+		return selectedFormat;
+			
+	}
+	
+	private String checkBBoxDataSupportedFormats(BBoxPortDataDescriptor bboxPort)
+	{
+		// Check if the selected SRS is supported by the service
+		String selectedFormat = bboxPort.getBoundingBoxFormat();
+		
+		if (!bboxPort.getSupportedBoundingBoxFormats().contains(selectedFormat))
+		{
+			throw new IllegalArgumentException(
+					"Unsupported SRS: " + selectedFormat.toString());
+		}
+		
+		return selectedFormat;
+		
+	}
+	
+	private void prepareExecuteBuilderInput(String processID, HashMap<String, IPortDataDescriptor> inputs,
+			ProcessDescriptionType processDescription, ExecuteRequestBuilder executeBuilder)
+			throws IOException, Exception {
+
+		InputDescriptionType[] processInputList = getProcessInputs(processDescription);
+
+		// TODO: Handle input when depth > 0
+		// Provide user values for each service input
+		for (InputDescriptionType input : processInputList) {
+			String inputName = input.getIdentifier().getStringValue();
+			Object inputValue = inputs.containsKey(inputName) ? inputs.get(inputName).getValue() : null;
+
+			// Check if input is required but not provided
+			if (inputValue == null && input.getMinOccurs().intValue() > 0) {
+				throw new IOException("Required Input not set: " + inputName);
 			}
 
-		}
+			// Skip optional inputs not supplied by the user
+			if (inputValue != null) {
+				if (input.getLiteralData() != null) {
+					if (inputValue instanceof String) {
+						executeBuilder.addLiteralData(inputName, (String) inputValue);
+					}
 
-		return executeOutput;
+				} else if (input.getComplexData() != null) {
+
+					// Check if the selected format (mimeType, encoding, schema)
+					// is supported by the service
+					ComplexDataFormat selectedFormat = checkComplexDataSupportedFormats(
+							(ComplexPortDataDescriptor) inputs.get(inputName));
+
+					if (inputValue instanceof String) {
+						// Check if complex data is provided by reference or value
+						boolean isReference = true;
+
+						try {
+							// if URI is valid URI then data is By Reference
+							URI.create((String) inputValue);
+						} catch (IllegalArgumentException ex) {
+							isReference = false;
+						}
+
+						if (isReference) {
+							// complex data by reference
+							executeBuilder.addComplexDataReference(inputName, (String) inputValue,
+									selectedFormat.getSchema(), selectedFormat.getEncoding(),
+									selectedFormat.getMimeType());
+						} else {
+
+							// complex data by value
+							try {
+
+								executeBuilder.addComplexData(inputName, (String) inputValue,
+										selectedFormat.getSchema(), selectedFormat.getEncoding(),
+										selectedFormat.getMimeType());
+
+							} catch (WPSClientException e) {
+								throw new Exception("Failed to set complex data: " + processID, e);
+							}
+						}
+					}
+				} else if (input.getBoundingBoxData() != null) {
+					// TODO: Handle BBox data
+				}
+			}
+		} // End input loop
 	}
+	
+	private void prepareExecuteBuilderOutput(String processID, HashMap<String, IPortDataDescriptor> outputs,
+			ProcessDescriptionType processDescription, ExecuteRequestBuilder executeBuilder)
+			throws IOException, Exception {
+		
+		OutputDescriptionType[] processOutputList = getProcessOutputs(processDescription); 
+		
+		for(OutputDescriptionType output : processOutputList)
+		{
+			String outputName = output.getIdentifier().getStringValue();
+			
+			if (outputs.containsKey(outputName))
+			{
+				if (output.isSetComplexOutput())
+				{
+					ComplexDataFormat selectedFormat = checkComplexDataSupportedFormats(
+							(ComplexPortDataDescriptor) outputs.get(outputName));
+					
+					if (selectedFormat!=null)
+					{
+						// "text/xml" if null
+						executeBuilder.setMimeTypeForOutput(selectedFormat.getMimeType(), outputName);
+						// sample schema "http://schemas.opengis.net/gml/3.1.1/base/feature.xsd"
+						executeBuilder.setSchemaForOutput(selectedFormat.getSchema(), outputName);
+				                
+						executeBuilder.setEncodingForOutput(selectedFormat.getEncoding(), outputName);
+					}
+				}	
+			}
+		}
+	}
+	
 }
