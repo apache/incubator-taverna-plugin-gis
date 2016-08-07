@@ -40,6 +40,7 @@ import org.n52.wps.client.WPSClientException;
 import org.n52.wps.client.WPSClientSession;
 
 import net.opengis.ows.x11.LanguageStringType;
+import net.opengis.ows.x11.impl.ExceptionReportDocumentImpl;
 import net.opengis.wps.x100.CapabilitiesDocument;
 import net.opengis.wps.x100.DataType;
 import net.opengis.wps.x100.InputDescriptionType;
@@ -261,7 +262,7 @@ public class GisClientNorthImpl implements IGisClient {
 			// Execute service
 			responseObject = wpsClient.execute(serviceURI.toString(), execute);
 		} catch (WPSClientException e) {
-			throw new Exception(e.getServerException().xmlText());
+			throw new Exception(e.getServerException().xmlText(),e);
 		}
 
 		// Get outputs
@@ -271,7 +272,7 @@ public class GisClientNorthImpl implements IGisClient {
 	}
 
 	private HashMap<String, String> getResponseOutput(ProcessDescriptionType processDescription,
-			ExecuteDocument execute, Object responseObject) throws WPSClientException {
+			ExecuteDocument execute, Object responseObject) throws Exception {
 		
 		HashMap<String, String> executeOutput = new HashMap<String, String>();
 		
@@ -305,6 +306,10 @@ public class GisClientNorthImpl implements IGisClient {
 					}
 				}
 			}
+		}
+		else if (responseObject instanceof ExceptionReportDocumentImpl)
+		{
+			throw new Exception("Error: " + ((ExceptionReportDocumentImpl)responseObject).getExceptionReport());
 		}
 		
 		return executeOutput;
@@ -347,6 +352,7 @@ public class GisClientNorthImpl implements IGisClient {
 		// is supported by the service
 		ComplexDataFormat selectedFormat = complexPort.getComplexFormat();
 
+		// TODO: Check if contains should not be case sensitive
 		if (!complexPort.getSupportedComplexFormats().contains(selectedFormat)) 
 		{
 			logger.warn("Provided format not supported.");
