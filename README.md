@@ -23,7 +23,7 @@ support for Geographical Information Systems (GIS), in particular
 
 ## License
 
-* (c) 2016 Apache Software Foundation
+* (c) 2016-2018 Apache Software Foundation
 
 This product includes software developed at The [Apache Software
 Foundation](http://www.apache.org/).
