@@ -14,16 +14,49 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 -->
-# Apache Taverna Plugin GIS
 
-Apache Taverna Plugin GIS is a plugin for Apache Taverna that provides
+
+
+## Taverna Project Retired
+
+> tl;dr: The Taverna code base is **no longer maintained** 
+> and is provided here for archival purposes.
+
+From 2014 till 2020 this code base was maintained by the 
+[Apache Incubator](https://incubator.apache.org/) project _Apache Taverna (incubating)_
+(see [web archive](https://web.archive.org/web/20200312133332/https://taverna.incubator.apache.org/)
+and [podling status](https://incubator.apache.org/projects/taverna.html)).
+
+In 2020 the Taverna community 
+[voted](https://lists.apache.org/thread.html/r559e0dd047103414fbf48a6ce1bac2e17e67504c546300f2751c067c%40%3Cdev.taverna.apache.org%3E)
+to **retire** Taverna as a project and withdraw the code base from the Apache Software Foundation. 
+
+This code base remains available under the Apache License 2.0 
+(see _License_ below), but is now simply called 
+_Taverna_ rather than ~~Apache Taverna (incubating)~~.
+
+While the code base is no longer actively maintained, 
+Pull Requests are welcome to the 
+[GitHub organization taverna](http://github.com/taverna/), 
+which may infrequently be considered by remaining 
+volunteer caretakers.
+
+
+### Previous releases
+
+This code has not yet been formally released.
+
+
+# Taverna Plugin GIS
+
+Taverna Plugin GIS is a plugin for Taverna that provides
 support for Geographical Information Systems (GIS), in particular 
 [OGC web services](http://www.opengeospatial.org/standards/common).
 
 
 ## License
 
-* (c) 2016-2018 Apache Software Foundation
+* (c) 2016-2020 Apache Software Foundation
 
 This product includes software developed at The [Apache Software
 Foundation](http://www.apache.org/).
@@ -38,39 +71,9 @@ details about embedded third-party libraries and source code.
 
 # Contribute
 
-Please subscribe to and contact the
-[dev@taverna](http://taverna.incubator.apache.org/community/lists#dev mailing list)
-for any questions, suggestions and discussions about
-Apache Taverna.
-
-Bugs and feature plannings are tracked in the Jira
-[Issue tracker](https://issues.apache.org/jira/browse/TAVERNA/component/12326808)
-under the `TAVERNA` component _Taverna Plugin GIS._ Feel free
-to [add an issue](http://taverna.incubator.apache.org/community/issue-tracker)!
-
-To suggest changes to this source code, feel free to raise a
-[GitHub pull request](https://github.com/apache/incubator-taverna-plugin-gis/pulls).
 Any contributions received are assumed to be covered by the [Apache License
-2.0](https://www.apache.org/licenses/LICENSE-2.0). We might ask you
-to sign a [Contributor License Agreement](https://www.apache.org/licenses/#clas)
-before accepting a larger contribution.
+2.0](https://www.apache.org/licenses/LICENSE-2.0). 
 
-
-
-## Disclaimer
-
-Apache Taverna is an effort undergoing incubation at the
-[Apache Software Foundation (ASF)](http://www.apache.org/),
-sponsored by the [Apache Incubator PMC](http://incubator.apache.org/).
-
-[Incubation](http://incubator.apache.org/incubation/Process_Description.html)
-is required of all newly accepted projects until a further review
-indicates that the infrastructure, communications, and decision making process
-have stabilized in a manner consistent with other successful ASF projects.
-
-While incubation status is not necessarily a reflection of the completeness
-or stability of the code, it does indicate that the project has yet to be
-fully endorsed by the ASF.
 
 ## Modules
 
@@ -91,7 +94,7 @@ Experimental modules:
 
 # Building
 
-To build Apache Taverna Language, use:
+To build Taverna Language, use:
 
     mvn clean install
 
@@ -106,7 +109,7 @@ To skip the tests (these can be timeconsuming), use:
 
 
 If you are modifying this source code independent of the
-Apache Taverna project, you may not want to run the
+Taverna project, you may not want to run the
 [Rat Maven plugin](https://creadur.apache.org/rat/apache-rat-plugin/)
 that enforces Apache headers in every source file - to disable it, try:
 
