@@ -51,8 +51,8 @@ public class GisActivityTest {
 	@Before
 	public void makeConfiguration() throws Exception {
 		configuration = JsonNodeFactory.instance.objectNode();
-		configuration.put("exampleString", "something");
-		configuration.put("exampleUri", "http://localhost:8080/myEndPoint");
+		configuration.put("serviceUri", "http://localhost:8080/geoserver/ows");
+		configuration.put("processID", "gs:StringConcatWPS");
 	}
 
 	@Test

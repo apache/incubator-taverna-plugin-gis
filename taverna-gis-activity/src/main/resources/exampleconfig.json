@@ -1,0 +1,15 @@
+{ "service": {
+	  "ogcServiceUri": "http://example.com/",
+	  "processIdentifier": "process1",
+  },
+  "portConfig": {
+	  "inputs": { 
+	    "in54": {
+	       "mediaType": "application/json",
+	       "isReference": true    
+	    }
+	  },
+	  "outputs": {
+	  } 
+  }
+}

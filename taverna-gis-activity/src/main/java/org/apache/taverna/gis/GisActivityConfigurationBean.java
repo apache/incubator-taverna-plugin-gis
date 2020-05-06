@@ -27,6 +27,7 @@ import java.util.List;
 import net.opengis.wps.x100.InputDescriptionType;
 import net.opengis.wps.x100.OutputDescriptionType;
 import org.apache.taverna.workflowmodel.processor.activity.config.ActivityPortsDefinitionBean;
+import org.apache.taverna.workflowmodel.processor.config.ConfigurationProperty;
 
 /**
  * Gis activity configuration bean.
@@ -52,19 +53,23 @@ public class GisActivityConfigurationBean extends ActivityPortsDefinitionBean im
 	 * be referenced as well, as long as they are part of the same plugin.
 	 */
 
-
 	private URI ogcServiceUri;
 	private String processIdentifier;
 
 	public URI getOgcServiceUri() {
 		return ogcServiceUri;
 	}
+	
+	@ConfigurationProperty(name = "service", label = "OGC Service URI", description = "The location of the GIS Web Service definition")
 	public void setOgcServiceUri(URI ogcServiceUri) {
 		this.ogcServiceUri = ogcServiceUri;
 	}
+	
 	public String getProcessIdentifier() {
 		return processIdentifier;
 	}
+	
+	@ConfigurationProperty(name = "process", label = "Process ID", description = "The identifier of the process provided by the web service")
 	public void setProcessIdentifier(String processIdentifier) {
 		this.processIdentifier = processIdentifier;
 	}
